@@ -3,7 +3,7 @@
 ; // BLumia - 2016/11/11
 ; // szO Chris Orz
 
-// formatTime by Yeye Chris
+// formatTime by Chrissssss
 function formatTime(t) {
 	var m=Math.floor(t/60),s=Math.round(t-Math.floor(t/60)*60);
 	if(s<10)return m+":0"+s;
@@ -45,14 +45,15 @@ $(function() {
 		},
  
 		freshPlaylist : function() {
-			var innerHtml = '';
 			var len = Player.data.length;
 			var songTitle = '';
+			Player.playlist.empty();
 			for (var i = 0; i < len; i++) {
 				songTitle = decodeURIComponent(Player.data[i]);
-				innerHtml += '<a index=' + i + '><li>' + songTitle + '</li></a>';
+				Player.playlist.append($('<a>').attr('index', i).append([
+					$('<li>').text(songTitle),
+				]));
 			}
-			Player.playlist.html(innerHtml);
 			
 			// everytime after update playlist dom, do this (why?)
 			$('#playlist a').click(function() {
