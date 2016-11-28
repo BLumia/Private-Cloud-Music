@@ -13,7 +13,7 @@ function formatTime(t) {
 
 $(function() {
 	var Player = {
-		path : 'Waterflame/',
+		path : 'Test/',
 		data : null,
 		audio : null,
 		currentIndex : -1,
@@ -139,7 +139,7 @@ $(function() {
 				} else if (Player.currentIndex == (Player.data.length - 1)) {
 					Player.playAtIndex(0);
 				} else {
-					Player.playAtIndex(Player.currentIndex + 1);
+					Player.playAtIndex(Number(Player.currentIndex) + 1);
 				}
 			});
  
@@ -149,7 +149,7 @@ $(function() {
 				} else if (Player.currentIndex == 0) {
 					Player.playAtIndex(Player.data.length - 1);
 				} else {
-					Player.playAtIndex(Player.currentIndex - 1);
+					Player.playAtIndex(Number(Player.currentIndex) - 1);
 				}
 			});
  
