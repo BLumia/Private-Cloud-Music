@@ -15,6 +15,7 @@
 	function GIVEMETHEFUCKINGUTF8($text) {
 		return iconv(mb_detect_encoding($text, mb_detect_order(), true), "UTF-8", $text);
     }
+	
 	$curPath = dirname(__FILE__);
 	$fileList = scandir($curPath);
 	
