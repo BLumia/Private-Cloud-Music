@@ -4,14 +4,18 @@
 <script src="./jquery-3.0.0.min.js"></script>
 <ul id="folderlist">
 <?php
+	function GIVEMETHEFUCKINGUTF8($text) {
+		return iconv(mb_detect_encoding($text, mb_detect_order(), true), "UTF-8", $text);
+    }
 	$curPath = dirname(__FILE__);
 	$fileList = scandir($curPath);
 	
 	foreach($fileList as $oneFileName) {
 		if($oneFileName == "." || $oneFileName == "..") continue;
+		$utf8FileName = GIVEMETHEFUCKINGUTF8($oneFileName);
 		$oneFilePath = $curPath."/".$oneFileName;
 		if (is_dir($oneFilePath) && file_exists($oneFilePath."/GetPlaylist.php")) {
-			echo "<li><a aim='{$oneFileName}'>{$oneFileName}/</a></li>";
+			echo "<li><a aim='{$utf8FileName}'>{$utf8FileName}/</a></li>";
 		}
 	}
 ?>
