@@ -20,6 +20,7 @@ $(function() {
 		loop: 0,
 		audioTag : $('audio'),
 		playlist : $('#playlist'),
+		folderlist : $('#folderlist'),
 		nowPlaying : $('#nowPlaying'),
 		
 		playAtIndex: function(i) {
@@ -32,6 +33,28 @@ $(function() {
 			Player.nowPlaying.html(decodeURIComponent(Player.data[Player.currentIndex]));
 		},
 		
+		freshFolderlist: function() {
+			$.ajax({
+				type: "GET",
+				url: "./GetFolders.php",
+				dataType: "json",
+				async : false,
+				success: function(data){
+					Player.folderlist.empty();
+					var folderList = eval(data);
+					var len = folderList.length;
+					for (var i = 0; i < len; i++) {
+						var decodedFolderName = decodeURIComponent(folderList[i]);
+						if (Player.path == null) Player.path = folderList[i] + '/';
+						// attr aim data as uriencoded path.
+						Player.folderlist.append($('<a>').attr('aim', folderList[i]).append([
+							$('<li>').text(decodedFolderName + '/'),
+						]));
+					}
+				}
+			});
+		},
+		
 		freshData: function() {
 			$.ajax({
 				type: "GET",
@@ -40,7 +63,11 @@ $(function() {
 				async : false,
 				success: function(data){
 					Player.data = eval(data);
-				}
+				},
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+					Player.data = [];
+					console.error("Ajax load playlist failed. Status: " + textStatus + " Url: " + this.url);
+				},
 			});
 		},
  
@@ -86,6 +113,7 @@ $(function() {
  
 		init : function() {
 			Player.audio = Player.audioTag.get(0);
+			Player.freshFolderlist();
 			Player.urlMatch();
 			Player.freshData();
 			Player.freshPlaylist();
@@ -98,9 +126,9 @@ $(function() {
 				$('#curTime').html(formatTime(Player.audio.currentTime));
 				$('#totalTime').html(formatTime(Player.audio.duration));
 				$('#timebar').css('width',Player.audio.currentTime/Player.audio.duration*100+"%");
-				var r=0; // Yeye Chris Begin {
+				var r=0; // Chrisssss Begin {
 				for(var i=0;i<Player.audio.buffered.length;++i)
-				r=r<Player.audio.buffered.end(i)?Player.audio.buffered.end(i):r; // Chris Always Yeye }
+				r=r<Player.audio.buffered.end(i)?Player.audio.buffered.end(i):r; // Chris is mine }
 				$('#bufferbar').css('width',r/Player.audio.duration*100+"%");
 			};
 			
