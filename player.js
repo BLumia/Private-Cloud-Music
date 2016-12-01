@@ -173,7 +173,7 @@ $(function() {
 			});
 			
 			$('#folderlist a').click(function() {
-				Player.path = $(this).attr('aim') + '/';
+				Player.path = 'Music/' + $(this).attr('aim') + '/';
 				Player.freshData($(this).attr('aim'));
 				Player.freshPlaylist();
 			});
