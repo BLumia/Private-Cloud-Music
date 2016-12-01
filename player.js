@@ -1,7 +1,7 @@
 ; // Private Cloud Music - player.js
 ; // Licence: WTFPL
 ; // BLumia - 2016/11/11
-; // szO Chris Orz
+; // szO Chris && 2jjy Orz
 
 // formatTime by Chrissssss
 function formatTime(t) {
@@ -13,7 +13,7 @@ function formatTime(t) {
 
 $(function() {
 	var Player = {
-		path : 'Test/',
+		path : null, // sample: 'Test/'
 		data : null,
 		audio : null,
 		currentIndex : -1,
@@ -137,9 +137,9 @@ $(function() {
 				$('#curTime').html(formatTime(Player.audio.currentTime));
 				$('#totalTime').html(formatTime(Player.audio.duration));
 				$('#timebar').css('width',Player.audio.currentTime/Player.audio.duration*100+"%");
-				var r=0; // Chrisssss Begin {
+				var r=0; // Chrisssss and jjjjjjy are mine.
 				for(var i=0;i<Player.audio.buffered.length;++i)
-				r=r<Player.audio.buffered.end(i)?Player.audio.buffered.end(i):r; // Chris is mine }
+					r=r<Player.audio.buffered.end(i)?Player.audio.buffered.end(i):r; 
 				$('#bufferbar').css('width',r/Player.audio.duration*100+"%");
 			};
 			
