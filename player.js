@@ -35,9 +35,12 @@ $(function() {
 		
 		freshFolderlist: function() {
 			$.ajax({
-				type: "GET",
-				url: "./GetFolders.php",
+				type: "POST",
+				url: "./api.php",
 				dataType: "json",
+				data : {  
+					"do" : "getfolders"  
+				},
 				async : false,
 				success: function(data){
 					Player.folderlist.empty();
@@ -51,15 +54,23 @@ $(function() {
 							$('<li>').text(decodedFolderName + '/'),
 						]));
 					}
-				}
+				},
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+					Player.data = [];
+					console.error("Ajax load folders failed. Status: " + textStatus + " Url: " + this.url);
+				},
 			});
 		},
 		
 		freshData: function() {
 			$.ajax({
-				type: "GET",
-				url: "./" + Player.path + "GetPlaylist.php",
+				type: "POST",
+				url: "./api.php",
 				dataType: "json",
+				data : {  
+					"do" : "getplaylist",
+					"folder" : Player.path
+				},
 				async : false,
 				success: function(data){
 					Player.data = eval(data);
