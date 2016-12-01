@@ -15,16 +15,18 @@
 	function GIVEMETHEFUCKINGUTF8($text) {
 		return iconv(mb_detect_encoding($text, mb_detect_order(), true), "UTF-8", $text);
     }
-	$curPath = dirname(__FILE__);
+	$curPath = dirname(__FILE__)."/Music";
 	$fileList = scandir($curPath);
-	
-	foreach($fileList as $oneFileName) {
+	$id = 0;
+	foreach($fileList as $oneFileName)
+	{
 		if($oneFileName == "." || $oneFileName == "..") continue;
 		$utf8FileName = GIVEMETHEFUCKINGUTF8($oneFileName);
 		$oneFilePath = $curPath."/".$oneFileName;
 		
-		if (is_dir($oneFilePath) && file_exists($oneFilePath."/GetPlaylist.php")) {
-			echo "<a aim='{$utf8FileName}'><li>{$utf8FileName}/</li></a>";
+		if (is_dir($oneFilePath)) {
+			$id++;
+			echo "<a aim='{$utf8FileName}' id='$id'><li>{$utf8FileName}/</li></a>";
 		}
 	}
 ?>

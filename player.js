@@ -13,7 +13,7 @@ function formatTime(t) {
 
 $(function() {
 	var Player = {
-		path : 'Test/',
+		path : 'Music/Test',
 		data : null,
 		audio : null,
 		currentIndex : -1,
@@ -32,10 +32,10 @@ $(function() {
 			Player.nowPlaying.html(decodeURIComponent(Player.data[Player.currentIndex]));
 		},
 		
-		freshData: function() {
+		freshData: function(folderName) {
 			$.ajax({
 				type: "GET",
-				url: "./" + Player.path + "GetPlaylist.php",
+				url: "./GetPlaylist.php?foldername="+folderName,
 				dataType: "json",
 				async : false,
 				success: function(data){
@@ -87,7 +87,7 @@ $(function() {
 		init : function() {
 			Player.audio = Player.audioTag.get(0);
 			Player.urlMatch();
-			Player.freshData();
+			Player.freshData(Player.path.replace('Music/','').replace('/',''));
 			Player.freshPlaylist();
 			
 			$('#btn-loop').html(Player.loop == 1 ? 'Loop: on' : 'Loop: off');
@@ -174,7 +174,7 @@ $(function() {
 			
 			$('#folderlist a').click(function() {
 				Player.path = $(this).attr('aim') + '/';
-				Player.freshData();
+				Player.freshData($(this).attr('aim'));
 				Player.freshPlaylist();
 			});
 		}
