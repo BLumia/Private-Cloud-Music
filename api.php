@@ -7,16 +7,16 @@
 	
 	function convertToEncoding($text, $encoding = "UTF-8") {
 		return iconv(mb_detect_encoding($text, mb_detect_order(), true), $encoding, $text);
-    }
+	}
 	
 	function getActuallEncoding($text) {
-		$encodingList = array('UTF-8', 'gb2312', 'ISO-8859-1');
+		$encodingList = array('UTF-8', 'gb2312', 'ISO-8859-1', 'big5');
 		foreach($encodingList as $oneEncode) {
 			$oneResult = iconv(mb_detect_encoding($text, mb_detect_order(), true), $oneEncode, $text);
 			if(md5($oneResult) == md5($text)) return $oneEncode;
 		}
 		return "UNKNOWN"; // This return value may cause problem.
-    }
+	}
 	
 	function getFileExtension($fileName) {
 		$explodeArr = explode('.',$fileName);
@@ -40,7 +40,8 @@
 			exit(json_encode($folderList));
 		case "getplaylist":
 			if(!isset($_POST['folder'])) exit("[]");
-			$fileList = scandir($songFolderPath."/".convertToEncoding(rawurldecode($_POST['folder']), "gb2312")); 
+			$encoding = isset($_POST['encoding']) ? $_POST['encoding'] : "UTF-8";
+			$fileList = scandir($songFolderPath."/".convertToEncoding(rawurldecode($_POST['folder']), $encoding)); 
 			$musicList = array();
 			foreach($fileList as $oneFileName) {
 				if (getFileExtension(convertToEncoding($oneFileName)) == 'mp3') {

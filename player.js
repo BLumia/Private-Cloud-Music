@@ -48,7 +48,7 @@ $(function() {
 					var len = folderList.length;
 					for (var i = 0; i < len; i++) {
 						var decodedFolderName = decodeURIComponent(folderList[i][0]);
-						if (Player.path == null) Player.path = folderList[i] + '/';
+						if (Player.path == null) Player.path = folderList[i][0] + '/';
 						// attr aim data as uriencoded path.
 						Player.folderlist.append($('<a>').attr('aim', folderList[i][0]).attr('encoding', folderList[i][1]).append([
 							$('<li>').text(decodedFolderName + '/'),
@@ -56,21 +56,24 @@ $(function() {
 					}
 				},
 				error: function(XMLHttpRequest, textStatus, errorThrown) {
-					Player.data = [];
 					console.error("Ajax load folders failed. Status: " + textStatus + " Url: " + this.url);
 				},
 			});
 		},
 		
 		freshData: function() {
+			var data = { 
+				"do" : "getplaylist",
+				"folder" : Player.path
+			}
+			if (arguments.length == 1) {
+				data["encoding"] = arguments[0];
+			}
 			$.ajax({
 				type: "POST",
 				url: "./api.php",
 				dataType: "json",
-				data : {  
-					"do" : "getplaylist",
-					"folder" : Player.path
-				},
+				data : data,
 				async : false,
 				success: function(data){
 					Player.data = eval(data);
@@ -93,7 +96,7 @@ $(function() {
 				]));
 			}
 			
-			// everytime after update playlist dom, do this (why?)
+			// everytime after update playlist dom, do this.
 			$('#playlist a').click(function() {
 				Player.playAtIndex($(this).attr('index'));
 			});
@@ -213,7 +216,7 @@ $(function() {
 			
 			$('#folderlist a').click(function() {
 				Player.path = $(this).attr('aim') + '/';
-				Player.freshData();
+				Player.freshData($(this).attr('encoding'));
 				Player.freshPlaylist();
 			});
 		}
