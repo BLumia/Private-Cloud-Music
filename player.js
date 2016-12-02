@@ -47,10 +47,10 @@ $(function() {
 					var folderList = eval(data);
 					var len = folderList.length;
 					for (var i = 0; i < len; i++) {
-						var decodedFolderName = decodeURIComponent(folderList[i]);
+						var decodedFolderName = decodeURIComponent(folderList[i][0]);
 						if (Player.path == null) Player.path = folderList[i] + '/';
 						// attr aim data as uriencoded path.
-						Player.folderlist.append($('<a>').attr('aim', folderList[i]).append([
+						Player.folderlist.append($('<a>').attr('aim', folderList[i][0]).attr('encoding', folderList[i][1]).append([
 							$('<li>').text(decodedFolderName + '/'),
 						]));
 					}
