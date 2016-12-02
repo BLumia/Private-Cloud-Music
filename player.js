@@ -47,10 +47,10 @@ $(function() {
 					var folderList = eval(data);
 					var len = folderList.length;
 					for (var i = 0; i < len; i++) {
-						var decodedFolderName = decodeURIComponent(folderList[i][0]);
-						if (Player.path == null) Player.path = folderList[i][0] + '/';
+						var decodedFolderName = decodeURIComponent(folderList[i]);
+						if (Player.path == null) Player.path = folderList[i] + '/';
 						// attr aim data as uriencoded path.
-						Player.folderlist.append($('<a>').attr('aim', folderList[i][0]).attr('encoding', folderList[i][1]).append([
+						Player.folderlist.append($('<a>').attr('aim', folderList[i]).append([
 							$('<li>').text(decodedFolderName + '/'),
 						]));
 					}
@@ -62,18 +62,14 @@ $(function() {
 		},
 		
 		freshData: function() {
-			var data = { 
-				"do" : "getplaylist",
-				"folder" : Player.path
-			}
-			if (arguments.length == 1) {
-				data["encoding"] = arguments[0];
-			}
 			$.ajax({
 				type: "POST",
 				url: "./api.php",
 				dataType: "json",
-				data : data,
+				data : {  
+					"do" : "getplaylist",
+					"folder" : Player.path
+				},
 				async : false,
 				success: function(data){
 					Player.data = eval(data);
@@ -216,7 +212,7 @@ $(function() {
 			
 			$('#folderlist a').click(function() {
 				Player.path = $(this).attr('aim') + '/';
-				Player.freshData($(this).attr('encoding'));
+				Player.freshData();
 				Player.freshPlaylist();
 			});
 		}

@@ -5,17 +5,8 @@
 	$songFolderPath = $curPath; // Change this if you'd like to put your song folders into a sub folder or somewhere else.
 	$command = strtolower($_POST['do']);
 	
-	function convertToEncoding($text, $encoding = "UTF-8") {
-		return iconv(mb_detect_encoding($text, mb_detect_order(), true), $encoding, $text);
-	}
-	
-	function getActuallEncoding($text) {
-		$encodingList = array('UTF-8', 'gb2312', 'ISO-8859-1', 'big5');
-		foreach($encodingList as $oneEncode) {
-			$oneResult = iconv(mb_detect_encoding($text, mb_detect_order(), true), $oneEncode, $text);
-			if(md5($oneResult) == md5($text)) return $oneEncode;
-		}
-		return "UNKNOWN"; // This return value may cause problem.
+	function GIVEMETHEFUCKINGUTF8($text) {
+		return iconv(mb_detect_encoding($text, mb_detect_order(), true), "UTF-8", $text);
 	}
 	
 	function getFileExtension($fileName) {
@@ -30,22 +21,29 @@
 			$folderList = array();
 			foreach($fileList as $oneFileName) {
 				if($oneFileName == "." || $oneFileName == "..") continue;
-				$utf8FileName = convertToEncoding($oneFileName);
+				$utf8FileName = GIVEMETHEFUCKINGUTF8($oneFileName);
 				$oneFilePath = $songFolderPath."/".$oneFileName;
 				// Check ignore strategy config file?
-				if (is_dir($oneFilePath) /* && file_exists($oneFilePath."/GetPlaylist.php") */) {
-					array_push($folderList, array(rawurlencode($utf8FileName), getActuallEncoding($oneFileName)));
+				if (is_dir($oneFilePath)) {
+					array_push($folderList, rawurlencode($utf8FileName));
 				}
 			}
 			exit(json_encode($folderList));
 		case "getplaylist":
 			if(!isset($_POST['folder'])) exit("[]");
-			$encoding = isset($_POST['encoding']) ? $_POST['encoding'] : "UTF-8";
-			$fileList = scandir($songFolderPath."/".convertToEncoding(rawurldecode($_POST['folder']), $encoding)); 
+			$actualSongFolder="";
+			$fileList = scandir($songFolderPath);
+			foreach($fileList as $oneFileName) {
+				if (rawurlencode(GIVEMETHEFUCKINGUTF8($oneFileName))."/"==$_POST['folder']) {
+					$actualSongFolder=$songFolderPath."/".$oneFileName;
+					break;
+				}
+			}
+			$fileList = scandir($actualSongFolder);
 			$musicList = array();
 			foreach($fileList as $oneFileName) {
-				if (getFileExtension(convertToEncoding($oneFileName)) == 'mp3') {
-					array_push($musicList, rawurlencode(convertToEncoding($oneFileName)));
+				if (getFileExtension(GIVEMETHEFUCKINGUTF8($oneFileName)) == 'mp3') {
+					array_push($musicList, rawurlencode(GIVEMETHEFUCKINGUTF8($oneFileName)));
 				}
 			}
 			exit(json_encode($musicList));
