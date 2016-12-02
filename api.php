@@ -8,6 +8,9 @@
 	function GIVEMETHEFUCKINGUTF8($text) {
 		return iconv(mb_detect_encoding($text, mb_detect_order(), true), "UTF-8", $text);
     }
+	function GIVEMETHEFUCKINGGB2312($text) {
+		return iconv(mb_detect_encoding($text, mb_detect_order(), true), "gb2312", $text);
+    }
 	
 	function getFileExtension($fileName) {
 		$explodeArr = explode('.',$fileName);
@@ -31,7 +34,7 @@
 			exit(json_encode($folderList));
 		case "getplaylist":
 			if(!isset($_POST['folder'])) exit("[]");
-			$fileList = scandir($songFolderPath."/".rawurldecode($_POST['folder'])); 
+			$fileList = scandir($songFolderPath."/".GIVEMETHEFUCKINGGB2312(rawurldecode($_POST['folder']))); 
 			$musicList = array();
 			foreach($fileList as $oneFileName) {
 				if (getFileExtension(GIVEMETHEFUCKINGUTF8($oneFileName)) == 'mp3') {
