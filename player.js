@@ -162,7 +162,7 @@ $(function() {
 			});
 			
 			$('*').on('click', 'button', function() {
-				if(Player.data[Player.currentIndex]) Player.nowPlaying.html(decodeURIComponent(Player.data[Player.currentIndex]));
+				if(Player.data[Player.currentIndex]) Player.nowPlaying.html(decodeURIComponent(Player.data[Player.currentIndex].fileName));
 			});
  
 			$('#btn-play').click(function() {
