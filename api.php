@@ -77,7 +77,7 @@
 						array(
 							"fileName"=>rawurlencode($utf8FileName),
 							"fileSize"=>filesize($curFilePath),
-							"md5"=>md5_file($curFilePath)
+							"modifiedTime"=>filemtime($curFilePath)
 						)
 					);
 				}
