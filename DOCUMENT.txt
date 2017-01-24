@@ -2,6 +2,10 @@ Get folder list API:
 
 POST:
 	'do' = "getfolders"
+RETURN:
+	json with the following struct.
+
+``` json
 {
 	"status": 200,
 	"message": "",
@@ -12,10 +16,19 @@ POST:
 		]
 	}
 }
+```
 
+------------------------------------------------------------------
 
-// 请求文件（曲目）列表
-// hash是否必要待确定，大概可以根据fileSize和fileName确定文件是否被更新过
+Get file list of given folder name.
+
+POST:
+	'do' = "getplaylist"
+	'folder' = folder name
+RETURN:
+	json with the following struct. (if folder exist)
+	
+``` json
 {
 	"status": 200,
 	"message": "",
@@ -35,10 +48,18 @@ POST:
 		]
 	}
 }
+```
 
-// 请求错误时
-// message内容返回错误原因
+------------------------------------------------------------------
+
+If anything wrong.
+
+RETURN:
+	json with HTTP status code and error message.
+
+``` json
 {
 	"status": 400,
 	"message": "illegal request!",
 }
+```
