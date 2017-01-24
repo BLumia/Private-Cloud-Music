@@ -1,9 +1,10 @@
-Get folder list API:
+### Get folder list API:
 
-POST:
-	'do' = "getfolders"
-RETURN:
-	json with the following struct.
+* POST:
+	+ 'do' = "getfolders"
+
+* RETURN:
+	+ json with the following struct.
 
 ``` json
 {
@@ -20,12 +21,13 @@ RETURN:
 
 ------------------------------------------------------------------
 
-Get file list of given folder name.
+### Get file list of given folder name.
 
-POST:
-	'do' = "getplaylist"
-	'folder' = folder name
-RETURN:
+* POST:
+	+ 'do' = "getplaylist"
+	+ 'folder' = folder name
+
+* RETURN:
 	json with the following struct. (if folder exist)
 	
 ``` json
@@ -52,10 +54,10 @@ RETURN:
 
 ------------------------------------------------------------------
 
-If anything wrong.
+### If anything wrong.
 
-RETURN:
-	json with HTTP status code and error message.
+* RETURN:
+	+ json with HTTP status code and error message.
 
 ``` json
 {
