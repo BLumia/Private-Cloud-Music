@@ -1,0 +1,44 @@
+Get folder list API:
+
+POST:
+	'do' = "getfolders"
+{
+	"status": 200,
+	"message": "",
+	"result":{
+		"type": "folderList",
+		"data": [
+			"Folder1", "Folder2", "Folder3"
+		]
+	}
+}
+
+
+// 请求文件（曲目）列表
+// hash是否必要待确定，大概可以根据fileSize和fileName确定文件是否被更新过
+{
+	"status": 200,
+	"message": "",
+	"result":{
+		"type": "fileList",
+		"data": [
+			{
+				"fileName": "FileName.mp3",
+				"fileSize": 123123123,
+				"hash": "vhiudasxnuoegfqoasc=="
+			},
+			{
+				"fileName": "FileName2.wav",
+				"fileSize": 123123123,
+				"hash": "qwezcrgxnuoegfqoasc=="
+			}
+		]
+	}
+}
+
+// 请求错误时
+// message内容返回错误原因
+{
+	"status": 400,
+	"message": "illegal request!",
+}
