@@ -34,65 +34,57 @@ $(function() {
 		},
 		
 		freshFolderlist: function() {
-			$.ajax({
-				type: "POST",
-				url: "./api.php",
-				dataType: "json",
-				async: false,
-				data : {  
-					"do" : "getfolders"  
-				},
-				success: function(data){
-					Player.folderlist.empty();
-					if (data.status != 200) { 
-						console.error("Fetch error. Reason: " + data.message + " Url: " + this.url);
-						return;
-					}
-					$.each(data.result.data, function(i, item) {
-						var decodedFolderName = decodeURIComponent(item);
-						if (Player.path == null) Player.path = item + '/';
-						// attr aim data as uriencoded path.
-						Player.folderlist.append($('<a>').attr('aim', item).append([
-							$('<li>').text(decodedFolderName + '/'),
-						]));
-					});
-				},
-				error: function(XMLHttpRequest, textStatus, errorThrown) {
-					console.error("Ajax load folders failed. Status: " + textStatus + " Url: " + this.url);
-				},
-			});
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "./api.php", false);
+			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState != 4 || xhr.status != 200) return;
+				var data = JSON.parse(xhr.responseText);
+				if (data.status != 200) { 
+					console.error("Fetch error. Reason: " + data.message + " Url: ./api.php");
+					return;
+				}
+				data.result.data.forEach(function(item, i){
+					var decodedFolderName = decodeURIComponent(item);
+					if (Player.path == null) Player.path = item + '/';
+					// attr aim data as uriencoded path.
+					Player.folderlist.append($('<a>').attr('aim', item).append([
+						$('<li>').text(decodedFolderName + '/'),
+					]));
+				});
+			};
+			xhr.onerror = function() {
+				console.error("Ajax load folders failed. Status: " + xhr.status + " Url: ./api.php");
+			};
+			xhr.send("do=getfolders");
 		},
 		
-		freshData: function() {
-			$.ajax({
-				type: "POST",
-				url: "./api.php",
-				dataType: "json",
-				async: false,
-				data : {  
-					"do" : "getplaylist",
-					"folder" : Player.path
-				},
-				success: function(data){
-					if (data.status != 200) { 
-						console.error("Fetch error. Reason: " + data.message + " Url: " + this.url);
-						return;
-					}
-					Player.data = data.result.data;
-					Player.freshPlaylist();
-				},
-				error: function(XMLHttpRequest, textStatus, errorThrown) {
-					Player.data = [];
-					console.error("Ajax load playlist failed. Status: " + textStatus + " Url: " + this.url);
-				},
-			});
+		fetchData: function() {
+			var xhr = new XMLHttpRequest();
+			xhr.open("POST", "./api.php", true);
+			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState != 4 || xhr.status != 200) return;
+				var data = JSON.parse(xhr.responseText);
+				if (data.status != 200) { 
+					console.error("Fetch error. Reason: " + data.message + " Url: ./api.php");
+					return;
+				}
+				Player.data = data.result.data;
+				Player.freshPlaylist();
+			};
+			xhr.onerror = function() {
+				console.error("Ajax load playlist failed. Status: " + xhr.status + " Url: ./api.php");
+				Player.data = [];
+			};
+			xhr.send("do=getplaylist&folder="+Player.path);
 		},
  
 		freshPlaylist : function() {
 			var data = this.data;
 			var songTitle = '';
 			this.playlist.empty();
-			$.each(data, function(i, item) {
+			data.forEach(function(item, i){
 				songTitle = decodeURIComponent(item.fileName);
 				Player.playlist.append($('<a>').attr('index', i).append([
 					$('<li>').text(songTitle),
@@ -131,7 +123,7 @@ $(function() {
 			this.audio = this.audioTag.get(0);
 			this.freshFolderlist();
 			this.urlMatch();
-			this.freshData();
+			this.fetchData();
 			
 			$('#btn-loop').html(Player.loop == 1 ? 'Loop: on' : 'Loop: off');
 		},
@@ -217,7 +209,7 @@ $(function() {
 			
 			$('#folderlist a').click(function() {
 				Player.path = $(this).attr('aim') + '/';
-				Player.freshData();
+				Player.fetchData();
 			});
 		}
 	};
