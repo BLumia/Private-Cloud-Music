@@ -18,10 +18,11 @@ $(function() {
 		audio : null,
 		currentIndex : -1,
 		loop: 0,
+		order: 0,
 		audioTag : $('audio'),
 		playlist : $('#playlist'),
 		folderlist : $('#folderlist'),
-		nowPlaying : $('#nowPlaying'),
+		nowPlaying : document.getElementById("nowPlaying"),
 		
 		playAtIndex: function(i) {
 			this.audio.pause(); // neccessary ?
@@ -30,7 +31,7 @@ $(function() {
 			this.audio.load(); // neccessary ?
 			this.audio.play();
 			window.history.replaceState("","Test Title","#/"+Player.path+Player.data[i].fileName+"/"); // title seems be fucked.
-			this.nowPlaying.html(decodeURIComponent(Player.data[i].fileName));
+			this.nowPlaying.innerHTML = decodeURIComponent(Player.data[i].fileName);
 		},
 		
 		freshFolderlist: function() {
@@ -106,7 +107,7 @@ $(function() {
 				this.path = urlMatch[1];
 				this.audio.src = (this.path + urlMatch[2]);
 				this.audio.play();
-				this.nowPlaying.html(decodeURIComponent(urlMatch[2]));
+				this.nowPlaying.innerHTML = decodeURIComponent(urlMatch[2]);
 			}
 			// Only match folder name.
 			if (!isUrlMatched) {
@@ -125,7 +126,8 @@ $(function() {
 			this.urlMatch();
 			this.fetchData();
 			
-			document.getElementById("btn-loop").innerHTML = Player.loop == 1 ? 'Loop: ON' : 'Loop: OFF';
+			document.getElementById("btn-loop").innerHTML = Player.loop == 1 ? 'Loop: √' : 'Loop: ×';
+			document.getElementById("btn-order").innerHTML = Player.order == 1 ? 'Order: √' : 'Order: ×';
 		},
  
 		ready : function() {
@@ -154,7 +156,7 @@ $(function() {
 			};
 			
 			$('*').on('click', 'button', function() {
-				if(Player.data[Player.currentIndex]) Player.nowPlaying.html(decodeURIComponent(Player.data[Player.currentIndex].fileName));
+				if(Player.data[Player.currentIndex]) Player.nowPlaying.innerHTML = decodeURIComponent(Player.data[Player.currentIndex].fileName);
 			});
 
 			document.getElementById("btn-play").onclick = function() {
@@ -192,19 +194,27 @@ $(function() {
 				Player.loop = 1 - Player.loop;
 				if (Player.loop == 1) {
 					Player.audio.loop = true;
-					document.getElementById("btn-loop").innerHTML="Loop: ON";
+					document.getElementById("btn-loop").innerHTML="Loop: √";
 				} else {
 					Player.audio.loop = false;
-					document.getElementById("btn-loop").innerHTML="Loop: OFF";
+					document.getElementById("btn-loop").innerHTML="Loop: ×";
 				}
 			};
  
 			document.getElementById("btn-order").onclick = function() {
-				Player.audio.onended = function() {
-					if (Player.loop == 0) {
-						document.getElementById("btn-next").click();
-					}
-				};
+				Player.order = 1 - Player.order;
+				if (Player.order == 1) {
+					Player.audio.onended = function() {
+						if (Player.loop == 0) {
+							document.getElementById("btn-next").click();
+						}
+					};
+					document.getElementById("btn-order").innerHTML="Order: √";
+				} else {
+					Player.audio.onended = undefined;
+					document.getElementById("btn-order").innerHTML="Order: ×";
+				}
+				
 			};
 			
 			$('#folderlist a').click(function() {
