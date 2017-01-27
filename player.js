@@ -99,7 +99,7 @@ $(function() {
 		urlMatch : function() {
 			var isUrlMatched = false;
 			// Match folder name and song title.
-			var re = new RegExp("[#][/](.*[/])(.*.mp3)[/]");
+			var re = new RegExp("[#][/](.*[/])(.*.[a-zA-z0-9]{1,3})[/]");
 			var urlMatch = re.exec(location.href);
 			if (urlMatch != null) {
 				isUrlMatched = true;
@@ -125,50 +125,50 @@ $(function() {
 			this.urlMatch();
 			this.fetchData();
 			
-			$('#btn-loop').html(Player.loop == 1 ? 'Loop: on' : 'Loop: off');
+			document.getElementById("btn-loop").innerHTML = Player.loop == 1 ? 'Loop: ON' : 'Loop: OFF';
 		},
  
 		ready : function() {
 			this.audio.ontimeupdate = function() {
-				$('#curTime').html(formatTime(Player.audio.currentTime));
-				$('#totalTime').html(formatTime(Player.audio.duration));
-				$('#timebar').css('width',Player.audio.currentTime/Player.audio.duration*100+"%");
-				var r=0; // Chrisssss and jjjjjjy are mine.
-				for(var i=0;i<Player.audio.buffered.length;++i)
-					r=r<Player.audio.buffered.end(i)?Player.audio.buffered.end(i):r; 
-				$('#bufferbar').css('width',r/Player.audio.duration*100+"%");
+				document.getElementById("curTime").innerHTML = formatTime(Player.audio.currentTime);
+				document.getElementById("totalTime").innerHTML = formatTime(Player.audio.duration);
+				document.getElementById("timebar").style.width = Player.audio.currentTime / Player.audio.duration*100+"%";
+				var r = 0;
+				for(var i=0; i<Player.audio.buffered.length; ++i)
+					r = r<Player.audio.buffered.end(i) ? Player.audio.buffered.end(i) : r;
+				document.getElementById("bufferbar").style.width = r / Player.audio.duration*100+"%";
 			};
 			
 			this.audio.onpause = function() {
-				$('#btn-play').html("Play");
+				document.getElementById("btn-play").innerHTML="Play";
 			}
 			
 			this.audio.onplay = function() {
-				$('#btn-play').html("Pause");
+				document.getElementById("btn-play").innerHTML="Pause";
 			}
 			
-			$('#progressbar').on('click', function(e) {
+			document.getElementById("progressbar").onclick = function(e) {
 				var sr=this.getBoundingClientRect();
 				var p=(e.clientX-sr.left)/sr.width;
 				Player.audio.currentTime=Player.audio.duration*p;
-			});
+			};
 			
 			$('*').on('click', 'button', function() {
 				if(Player.data[Player.currentIndex]) Player.nowPlaying.html(decodeURIComponent(Player.data[Player.currentIndex].fileName));
 			});
- 
-			$('#btn-play').click(function() {
+
+			document.getElementById("btn-play").onclick = function() {
 				if(Player.audio.paused) {
 					Player.audio.play();
 				} else {
 					Player.audio.pause();
 				}
 				if (Player.currentIndex == -1 && Player.audio.readyState == 0) {
-					$('#btn-next').click();
+					document.getElementById("btn-next").click();
 				}
-			});
- 
-			$('#btn-next').click(function() {
+			};
+
+			document.getElementById("btn-next").onclick = function() {
 				if (Player.currentIndex == -1) {
 					Player.playAtIndex(0);
 				} else if (Player.currentIndex == (Player.data.length - 1)) {
@@ -176,9 +176,9 @@ $(function() {
 				} else {
 					Player.playAtIndex(Number(Player.currentIndex) + 1);
 				}
-			});
- 
-			$('#btn-prev').click(function() {
+			};
+
+			document.getElementById("btn-prev").onclick = function() {
 				if (Player.currentIndex == -1) {
 					Player.playAtIndex(0);
 				} else if (Player.currentIndex == 0) {
@@ -186,26 +186,26 @@ $(function() {
 				} else {
 					Player.playAtIndex(Number(Player.currentIndex) - 1);
 				}
-			});
- 
-			$('#btn-loop').click(function() {
+			};
+
+			document.getElementById("btn-loop").onclick = function() {
 				Player.loop = 1 - Player.loop;
 				if (Player.loop == 1) {
 					Player.audio.loop = true;
-					$('#btn-loop').html('Loop: on');
+					document.getElementById("btn-loop").innerHTML="Loop: ON";
 				} else {
 					Player.audio.loop = false;
-					$('#btn-loop').html('Loop: off');
+					document.getElementById("btn-loop").innerHTML="Loop: OFF";
 				}
-			});
+			};
  
-			$('#btn-order').click(function() {
+			document.getElementById("btn-order").onclick = function() {
 				Player.audio.onended = function() {
 					if (Player.loop == 0) {
-						$('#btn-next').click();
+						document.getElementById("btn-next").click();
 					}
 				};
-			});
+			};
 			
 			$('#folderlist a').click(function() {
 				Player.path = $(this).attr('aim') + '/';

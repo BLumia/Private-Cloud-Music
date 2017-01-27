@@ -61,12 +61,12 @@
 			$actualSongFolder = null;
 			$folderList = scandir($songFolderPath);
 			foreach($folderList as $oneFolderName) {
-				if (rawurlencode(GIVEMETHEFUCKINGUTF8($oneFolderName))."/"==$_POST['folder']) {
+				if (GIVEMETHEFUCKINGUTF8($oneFolderName)."/"==urldecode($_POST['folder'])) {
 					$actualSongFolder="{$songFolderPath}/{$oneFolderName}";
 					break;
 				}
 			}
-			if($actualSongFolder == null) fire(404, "Folder not exist!");
+			if($actualSongFolder == null) fire(404, "Folder \"{$_POST['folder']}\" not exist!");
 			$fileList = scandir($actualSongFolder);
 			$musicList = array();
 			foreach($fileList as $oneFileName) {
