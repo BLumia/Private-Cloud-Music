@@ -1,0 +1,12 @@
+// Ref: http://blog.csdn.net/helpzp2008/article/details/51507428
+{
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+    "rules":{
+        "semi": [2, "always"],
+        "indent": [2,4],
+        "no-path-concat": 0
+    }
+}
