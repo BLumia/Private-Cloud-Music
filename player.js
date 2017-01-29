@@ -1,6 +1,6 @@
 ; // Private Cloud Music - player.js
 ; // Licence: WTFPL
-; // BLumia - 2016/11/11
+; // BLumia - 2016/11/11, With:
 ; // szO Chris && 2jjy && jxpxxzj Orz
 ; //     ↑ Moe    ↑ Moe   ↑ Moe
 
@@ -17,9 +17,11 @@ class Player {
         this.audioTag = config.audioEl;
         this.api = config.api;
         this.path = config.defaultFolder;
+        this.loop = 0;
+        this.order = 0;
         this.audio = this.audioTag.get(0);
-        this.playlist = $('#playlist'),
-        this.folderlist = $('#folderlist'),
+        this.playlist = document.getElementById("playlist"),
+        this.folderlist = document.getElementById("folderlist"),
         this.nowPlaying = document.getElementById('nowPlaying'),
         this.freshFolderlist();
         this.urlMatch();
@@ -29,12 +31,13 @@ class Player {
     }
 
     playAtIndex(i) {
-        this.audio.pause(); // neccessary ?
+        // FIXME: trigger this when audio doesn't finished load will cause play promise error.
+        this.audio.pause();
         this.currentIndex = i;
         this.audio.src = (this.path + this.data[i].fileName);
-        this.audio.load(); // neccessary ?
+        this.audio.load();
         this.audio.play();
-        window.history.replaceState("","Test Title","#/"+this.path+this.data[i].fileName+"/"); // title seems be fucked.
+        window.history.replaceState("","Useless Title","#/"+this.path+this.data[i].fileName+"/"); // title seems be fucked.
         this.nowPlaying.innerHTML = decodeURIComponent(this.data[i].fileName);
     }
         
@@ -54,9 +57,12 @@ class Player {
                 const decodedFolderName = decodeURIComponent(item);
                 if (that.path == null) that.path = item + '/';               
                 // attr aim data as uriencoded path.
-                that.folderlist.append($('<a>').attr('aim', item).append([
-                    $('<li>').text(decodedFolderName + '/'),
-                ]));
+                let el = document.createElement("a");
+                el.setAttribute('aim', item);
+                let subEl = document.createElement("li");
+                subEl.textContent = decodedFolderName + '/';
+                el.appendChild(subEl);
+                that.folderlist.appendChild(el);
             });
         };
         xhr.onerror = () => {
@@ -89,18 +95,25 @@ class Player {
     freshPlaylist() {
         const data = this.data;
         let songTitle = '';
-        this.playlist.empty();
+        this.playlist.innerHTML = '';
         data.forEach((item, i) => {
             songTitle = decodeURIComponent(item.fileName);
-            this.playlist.append($('<a>').attr('index', i).append([
-                $('<li>').text(songTitle),
-            ]));
+            let el = document.createElement("a");
+            el.setAttribute('index', i);
+            let subEl = document.createElement("li");
+            subEl.textContent = songTitle;
+            el.appendChild(subEl);
+            this.playlist.appendChild(el);
         });
         // everytime after update playlist dom, do this.
         const that = this;
-        $('#playlist a').click(function() {
-            that.playAtIndex($(this).attr('index'));
-        });
+        var nodeList = document.querySelectorAll('#playlist a');
+        for(let i = 0; i < nodeList.length; i++) {
+            let el = nodeList[i];
+            el.onclick = function() {
+                that.playAtIndex(el.getAttribute('index'));
+            };
+        }
     }
         
     urlMatch() {
@@ -152,9 +165,13 @@ class Player {
             that.audio.currentTime=that.audio.duration*p;
         };
             
-        $('*').on('click', 'button', () => {
-            if(this.data[this.currentIndex]) this.nowPlaying.innerHTML = decodeURIComponent(this.data[this.currentIndex].fileName);
-        });
+        var nodeList = document.getElementsByTagName('button');
+        for(let i = 0; i < nodeList.length; i++) {
+            let el = nodeList[i];
+            el.onclick = function() {
+                if(this.data[this.currentIndex]) this.nowPlaying.innerHTML = decodeURIComponent(this.data[this.currentIndex].fileName);
+            };
+        }
 
         document.getElementById("btn-play").onclick = () => {
             if(this.audio.paused) {
@@ -214,10 +231,13 @@ class Player {
                 
         };
         
-        $('#folderlist a').click(function() {
-            that.path = $(this).attr('aim') + '/';
-            that.fetchData();
-        });
+        var nodeList = document.querySelectorAll('#folderlist a');
+        for(let i = 0; i < nodeList.length; i++) {
+            let el = nodeList[i];
+            el.onclick = function() {
+                that.path = el.getAttribute('aim') + '/';
+                that.fetchData();
+            };
+        }
     }
 }
-
