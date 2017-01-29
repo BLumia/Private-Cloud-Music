@@ -62,5 +62,11 @@ function w3_close() {
     document.getElementById("mySidenav").style.display = "none";
     document.getElementById("myOverlay").style.display = "none";
 }
+var player = new Player({
+    api: './api.php',
+    defaultFolder: null,
+    audioEl: $('audio')
+});
+player.ready();
 </script>
 </html>

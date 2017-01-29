@@ -1,7 +1,8 @@
 ; // Private Cloud Music - player.js
 ; // Licence: WTFPL
 ; // BLumia - 2016/11/11
-; // szO Chris && 2jjy Orz
+; // szO Chris && 2jjy && jxpxxzj Orz
+; //     ↑ Moe    ↑ Moe   ↑ Moe
 
 // formatTime by Chrissssss
 function formatTime(t) {
@@ -15,7 +16,7 @@ class Player {
     constructor(config) {
         this.audioTag = config.audioEl;
         this.api = config.api;
-        this.path = config.defaultFolder + '/';
+        this.path = config.defaultFolder;
         this.audio = this.audioTag.get(0);
         this.playlist = $('#playlist'),
         this.folderlist = $('#folderlist'),
@@ -36,7 +37,7 @@ class Player {
         window.history.replaceState("","Test Title","#/"+this.path+this.data[i].fileName+"/"); // title seems be fucked.
         this.nowPlaying.innerHTML = decodeURIComponent(this.data[i].fileName);
     }
-		
+        
     freshFolderlist() {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", this.api, false);
@@ -52,7 +53,7 @@ class Player {
             data.result.data.forEach((item, i) => {
                 const decodedFolderName = decodeURIComponent(item);
                 if (that.path == null) that.path = item + '/';               
-					// attr aim data as uriencoded path.
+                // attr aim data as uriencoded path.
                 that.folderlist.append($('<a>').attr('aim', item).append([
                     $('<li>').text(decodedFolderName + '/'),
                 ]));
@@ -63,7 +64,7 @@ class Player {
         };
         xhr.send("do=getfolders");
     }
-		
+        
     fetchData() {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", this.api, true);
@@ -95,16 +96,16 @@ class Player {
                 $('<li>').text(songTitle),
             ]));
         });
-			// everytime after update playlist dom, do this.
+        // everytime after update playlist dom, do this.
         const that = this;
         $('#playlist a').click(function() {
             that.playAtIndex($(this).attr('index'));
         });
     }
-		
+        
     urlMatch() {
         let isUrlMatched = false;
-		// Match folder name and song title.
+        // Match folder name and song title.
         let re = new RegExp("[#][/](.*[/])(.*.[a-zA-z0-9]{1,3})[/]");
         let urlMatch = re.exec(location.href);
         if (urlMatch != null) {
@@ -114,7 +115,7 @@ class Player {
             this.audio.play();
             this.nowPlaying.innerHTML = decodeURIComponent(urlMatch[2]);
         }
-		// Only match folder name.
+        // Only match folder name.
         if (!isUrlMatched) {
             re = new RegExp("[#][/](.*[/])");
             urlMatch = re.exec(location.href);
@@ -135,22 +136,22 @@ class Player {
                 r = r<this.audio.buffered.end(i) ? this.audio.buffered.end(i) : r;
             document.getElementById("bufferbar").style.width = r / this.audio.duration*100+"%";
         };
-			
+            
         this.audio.onpause = () => {
             document.getElementById("btn-play").innerHTML="Play";
         };
-			
+            
         this.audio.onplay = () => {
             document.getElementById("btn-play").innerHTML="Pause";
         };
 
-        const that = this;	
+        const that = this;  
         document.getElementById("progressbar").onclick = function(e) {
             const sr=this.getBoundingClientRect();
             const p=(e.clientX-sr.left)/sr.width;
             that.audio.currentTime=that.audio.duration*p;
         };
-			
+            
         $('*').on('click', 'button', () => {
             if(this.data[this.currentIndex]) this.nowPlaying.innerHTML = decodeURIComponent(this.data[this.currentIndex].fileName);
         });
@@ -210,9 +211,9 @@ class Player {
                 this.audio.onended = undefined;
                 document.getElementById("btn-order").innerHTML="Order: ×";
             }
-				
+                
         };
-		
+        
         $('#folderlist a').click(function() {
             that.path = $(this).attr('aim') + '/';
             that.fetchData();
@@ -220,9 +221,3 @@ class Player {
     }
 }
 
-const player = new Player({
-    api: 'http://localhost:8080/hidden/api.php',
-    defaultFolder: 'Waterflame',
-    audioEl: $('audio')
-});
-player.ready();

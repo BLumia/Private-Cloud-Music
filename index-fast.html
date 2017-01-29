@@ -15,4 +15,12 @@ Now Playing: <span id="nowPlaying"></span><br/>
 <button id="btn-order">Order</button>
 
 <script src="./player.js"></script>
+<script>
+var player = new Player({
+    api: './api.php',
+    defaultFolder: null,
+    audioEl: $('audio')
+});
+player.ready();
+</script>
 </html>
