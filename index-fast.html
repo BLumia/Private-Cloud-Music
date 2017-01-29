@@ -1,7 +1,6 @@
 <html>
 <meta charset="utf-8">
 <title>Private Playlist</title>
-<script src="./jquery-3.0.0.min.js"></script>
 <ul id="folderlist">
 </ul>
 <ol id="playlist">
@@ -19,7 +18,7 @@ Now Playing: <span id="nowPlaying"></span><br/>
 var player = new Player({
     api: './api.php',
     defaultFolder: null,
-    audioEl: $('audio')
+    audioEl: document.getElementsByTagName('audio')[0]
 });
 player.ready();
 </script>

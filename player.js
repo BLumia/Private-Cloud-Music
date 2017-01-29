@@ -14,12 +14,11 @@ function formatTime(t) {
 
 class Player {
     constructor(config) {
-        this.audioTag = config.audioEl;
         this.api = config.api;
         this.path = config.defaultFolder;
         this.loop = 0;
         this.order = 0;
-        this.audio = this.audioTag.get(0);
+        this.audio = config.audioEl;
         this.playlist = document.getElementById("playlist"),
         this.folderlist = document.getElementById("folderlist"),
         this.nowPlaying = document.getElementById('nowPlaying'),
