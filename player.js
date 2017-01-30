@@ -110,7 +110,7 @@ class Player {
         for(let i = 0; i < nodeList.length; i++) {
             let el = nodeList[i];
             el.onclick = function() {
-                that.playAtIndex(el.getAttribute('index'));
+                that.playAtIndex(this.getAttribute('index'));
             };
         }
     }
@@ -168,7 +168,7 @@ class Player {
         for(let i = 0; i < nodeList.length; i++) {
             let el = nodeList[i];
             el.onclick = function() {
-                if(this.data[this.currentIndex]) this.nowPlaying.innerHTML = decodeURIComponent(this.data[this.currentIndex].fileName);
+                if(that.data[that.currentIndex]) that.nowPlaying.innerHTML = decodeURIComponent(that.data[that.currentIndex].fileName);
             };
         }
 
@@ -234,7 +234,7 @@ class Player {
         for(let i = 0; i < nodeList.length; i++) {
             let el = nodeList[i];
             el.onclick = function() {
-                that.path = el.getAttribute('aim') + '/';
+                that.path = this.getAttribute('aim') + '/';
                 that.fetchData();
             };
         }
