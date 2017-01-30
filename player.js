@@ -11,33 +11,34 @@ function formatTime(t) {
 	else return m+":"+s;
 }
 
-$(function() {
+(function() {
 	var Player = {
 		path : null, // sample: 'Test/'
 		data : null,
-		audio : null,
+		audio : document.getElementsByTagName('audio')[0],
 		currentIndex : -1,
 		loop: 0,
 		order: 0,
-		audioTag : $('audio'),
-		playlist : $('#playlist'),
-		folderlist : $('#folderlist'),
+		playlist : document.getElementById("playlist"),
+		folderlist : document.getElementById("folderlist"),
 		nowPlaying : document.getElementById("nowPlaying"),
 		
 		playAtIndex: function(i) {
-			this.audio.pause(); // neccessary ?
+			// FIXME: trigger this when audio doesn't finished load will cause play promise error.
+			this.audio.pause();
 			this.currentIndex = i;
-			this.audio.src = (Player.path + Player.data[i].fileName);
-			this.audio.load(); // neccessary ?
+			this.audio.src = (this.path + this.data[i].fileName);
+			this.audio.load();
 			this.audio.play();
-			window.history.replaceState("","Test Title","#/"+Player.path+Player.data[i].fileName+"/"); // title seems be fucked.
-			this.nowPlaying.innerHTML = decodeURIComponent(Player.data[i].fileName);
+			window.history.replaceState("","Useless Title","#/"+this.path+this.data[i].fileName+"/"); // title seems be fucked.
+			this.nowPlaying.innerHTML = decodeURIComponent(this.data[i].fileName);
 		},
 		
 		freshFolderlist: function() {
 			var xhr = new XMLHttpRequest();
 			xhr.open("POST", "./api.php", false);
 			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			var that = this;
 			xhr.onreadystatechange = function () {
 				if (xhr.readyState != 4 || xhr.status != 200) return;
 				var data = JSON.parse(xhr.responseText);
@@ -47,11 +48,14 @@ $(function() {
 				}
 				data.result.data.forEach(function(item, i){
 					var decodedFolderName = decodeURIComponent(item);
-					if (Player.path == null) Player.path = item + '/';
+					if (that.path == null) that.path = item + '/';
 					// attr aim data as uriencoded path.
-					Player.folderlist.append($('<a>').attr('aim', item).append([
-						$('<li>').text(decodedFolderName + '/'),
-					]));
+					var el = document.createElement("a");
+					el.setAttribute('aim', item);
+					var subEl = document.createElement("li");
+					subEl.textContent = decodedFolderName + '/';
+					el.appendChild(subEl);
+					that.folderlist.appendChild(el);
 				});
 			};
 			xhr.onerror = function() {
@@ -84,17 +88,25 @@ $(function() {
 		freshPlaylist : function() {
 			var data = this.data;
 			var songTitle = '';
-			this.playlist.empty();
-			data.forEach(function(item, i){
+			this.playlist.innerHTML = '';
+			data.forEach((item, i) => {
 				songTitle = decodeURIComponent(item.fileName);
-				Player.playlist.append($('<a>').attr('index', i).append([
-					$('<li>').text(songTitle),
-				]));
+				var el = document.createElement("a");
+				el.setAttribute('index', i);
+				var subEl = document.createElement("li");
+				subEl.textContent = songTitle;
+				el.appendChild(subEl);
+				this.playlist.appendChild(el);
 			});
 			// everytime after update playlist dom, do this.
-			$('#playlist a').click(function() {
-				Player.playAtIndex($(this).attr('index'));
-			});
+			var that = this;
+			var nodeList = document.querySelectorAll('#playlist a');
+			for(var i = 0; i < nodeList.length; i++) {
+				var el = nodeList[i];
+				el.onclick = function() {
+					that.playAtIndex(this.getAttribute('index'));
+				};
+			}
 		},
 		
 		urlMatch : function() {
@@ -121,7 +133,6 @@ $(function() {
 		},
  
 		init : function() {
-			this.audio = this.audioTag.get(0);
 			this.freshFolderlist();
 			this.urlMatch();
 			this.fetchData();
@@ -149,81 +160,90 @@ $(function() {
 				document.getElementById("btn-play").innerHTML="Pause";
 			}
 			
+			var that = this;
 			document.getElementById("progressbar").onclick = function(e) {
 				var sr=this.getBoundingClientRect();
 				var p=(e.clientX-sr.left)/sr.width;
-				Player.audio.currentTime=Player.audio.duration*p;
+				that.audio.currentTime=that.audio.duration*p;
 			};
 			
-			$('*').on('click', 'button', function() {
-				if(Player.data[Player.currentIndex]) Player.nowPlaying.innerHTML = decodeURIComponent(Player.data[Player.currentIndex].fileName);
-			});
+			var nodeList = document.getElementsByTagName('button');
+			for(let i = 0; i < nodeList.length; i++) {
+				let el = nodeList[i];
+				el.onclick = function() {
+					if(that.data[that.currentIndex]) that.nowPlaying.innerHTML = decodeURIComponent(that.data[that.currentIndex].fileName);
+				};
+			}
 
 			document.getElementById("btn-play").onclick = function() {
-				if(Player.audio.paused) {
-					Player.audio.play();
+				if(that.audio.paused) {
+					that.audio.play();
 				} else {
-					Player.audio.pause();
+					that.audio.pause();
 				}
-				if (Player.currentIndex == -1 && Player.audio.readyState == 0) {
+				if (that.currentIndex == -1 && that.audio.readyState == 0) {
 					document.getElementById("btn-next").click();
 				}
 			};
 
 			document.getElementById("btn-next").onclick = function() {
-				if (Player.currentIndex == -1) {
-					Player.playAtIndex(0);
-				} else if (Player.currentIndex == (Player.data.length - 1)) {
-					Player.playAtIndex(0);
+				if (that.currentIndex == -1) {
+					that.playAtIndex(0);
+				} else if (that.currentIndex == (that.data.length - 1)) {
+					that.playAtIndex(0);
 				} else {
-					Player.playAtIndex(Number(Player.currentIndex) + 1);
+					that.playAtIndex(Number(that.currentIndex) + 1);
 				}
 			};
 
 			document.getElementById("btn-prev").onclick = function() {
-				if (Player.currentIndex == -1) {
-					Player.playAtIndex(0);
-				} else if (Player.currentIndex == 0) {
-					Player.playAtIndex(Player.data.length - 1);
+				if (that.currentIndex == -1) {
+					that.playAtIndex(0);
+				} else if (that.currentIndex == 0) {
+					that.playAtIndex(that.data.length - 1);
 				} else {
-					Player.playAtIndex(Number(Player.currentIndex) - 1);
+					that.playAtIndex(Number(that.currentIndex) - 1);
 				}
 			};
 
 			document.getElementById("btn-loop").onclick = function() {
-				Player.loop = 1 - Player.loop;
-				if (Player.loop == 1) {
-					Player.audio.loop = true;
+				that.loop = 1 - that.loop;
+				if (that.loop == 1) {
+					that.audio.loop = true;
 					document.getElementById("btn-loop").innerHTML="Loop: √";
 				} else {
-					Player.audio.loop = false;
+					that.audio.loop = false;
 					document.getElementById("btn-loop").innerHTML="Loop: ×";
 				}
 			};
  
 			document.getElementById("btn-order").onclick = function() {
-				Player.order = 1 - Player.order;
-				if (Player.order == 1) {
-					Player.audio.onended = function() {
-						if (Player.loop == 0) {
+				that.order = 1 - that.order;
+				if (that.order == 1) {
+					that.audio.onended = function() {
+						if (that.loop == 0) {
 							document.getElementById("btn-next").click();
 						}
 					};
 					document.getElementById("btn-order").innerHTML="Order: √";
 				} else {
-					Player.audio.onended = undefined;
+					that.audio.onended = undefined;
 					document.getElementById("btn-order").innerHTML="Order: ×";
 				}
 				
 			};
 			
-			$('#folderlist a').click(function() {
-				Player.path = $(this).attr('aim') + '/';
-				Player.fetchData();
-			});
+			var nodeList = document.querySelectorAll('#folderlist a');
+			for(var i = 0; i < nodeList.length; i++) {
+				var el = nodeList[i];
+				el.onclick = function() {
+					that.path = this.getAttribute('aim') + '/';
+					that.fetchData();
+				};
+			}
 		}
 	};
  
 	Player.init();
 	Player.ready();
-});
+}());
