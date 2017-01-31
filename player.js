@@ -34,9 +34,9 @@ function formatTime(t) {
             this.nowPlaying.innerHTML = decodeURIComponent(this.data[i].fileName);
         },
         
-        freshFolderlist: function() {
+        freshFolderlist: function(callback) {
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "./api.php", false);
+            xhr.open("POST", "./api.php", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             var that = this;
             xhr.onreadystatechange = function () {
@@ -61,6 +61,9 @@ function formatTime(t) {
             xhr.onerror = function() {
                 console.error("Ajax load folders failed. Status: " + xhr.status + " Url: ./api.php");
             };
+            xhr.onloadend = function() {
+                typeof callback === 'function' && callback();
+            }
             xhr.send("do=getfolders");
         },
         
@@ -133,10 +136,11 @@ function formatTime(t) {
         },
  
         init : function() {
-            this.freshFolderlist();
-            this.urlMatch();
-            this.fetchData();
-            
+            var that = this;
+            this.freshFolderlist(function() {
+                that.urlMatch();
+                that.fetchData();
+            });
             document.getElementById("btn-loop").innerHTML = Player.loop == 1 ? 'Loop: √' : 'Loop: ×';
             document.getElementById("btn-order").innerHTML = Player.order == 1 ? 'Order: √' : 'Order: ×';
         },
