@@ -23,6 +23,12 @@ function formatTime(t) {
         css: function(property, value) {
             if(this.el) this.el.style.cssText += ';' + property + ":" + value;
         },
+        click: function(handler) {
+            if(!this.el) return this;
+            if (typeof(handler) == "undefined" || typeof(handler) == "function") this.el.onclick = handler;
+            else this.el.click();
+            return this;
+        },
         innerHTML: function(text) {
             if(this.el) this.el.innerHTML = text;
         }
@@ -177,18 +183,18 @@ function formatTime(t) {
             this.audio.onpause = function() {
                 H("btn-play").innerHTML("Play");
             }
-            
+
             this.audio.onplay = function() {
                 H("btn-play").innerHTML("Pause");
             }
-            
+
             var that = this;
-            H("progressbar").el.onclick = function(e) {
+            H("progressbar").click(function(e) {
                 var sr=this.getBoundingClientRect();
                 var p=(e.clientX-sr.left)/sr.width;
                 that.audio.currentTime=that.audio.duration*p;
-            };
-            
+            });
+
             var nodeList = document.getElementsByTagName('button');
             for(let i = 0; i < nodeList.length; i++) {
                 let el = nodeList[i];
@@ -197,7 +203,7 @@ function formatTime(t) {
                 };
             }
 
-            H("btn-play").el.onclick = function() {
+            H("btn-play").click(function() {
                 if(that.audio.paused) {
                     that.audio.play();
                 } else {
@@ -206,9 +212,9 @@ function formatTime(t) {
                 if (that.currentIndex == -1 && that.audio.readyState == 0) {
                     H("btn-next").el.click();
                 }
-            };
+            });
 
-            H("btn-next").el.onclick = function() {
+            H("btn-next").click(function() {
                 if (that.currentIndex == -1) {
                     that.playAtIndex(0);
                 } else if (that.currentIndex == (that.data.length - 1)) {
@@ -216,9 +222,9 @@ function formatTime(t) {
                 } else {
                     that.playAtIndex(Number(that.currentIndex) + 1);
                 }
-            };
+            });
 
-            H("btn-prev").el.onclick = function() {
+            H("btn-prev").click(function() {
                 if (that.currentIndex == -1) {
                     that.playAtIndex(0);
                 } else if (that.currentIndex == 0) {
@@ -226,9 +232,9 @@ function formatTime(t) {
                 } else {
                     that.playAtIndex(Number(that.currentIndex) - 1);
                 }
-            };
+            });
 
-            H("btn-loop").el.onclick = function() {
+            H("btn-loop").click(function() {
                 that.loop = 1 - that.loop;
                 if (that.loop == 1) {
                     that.audio.loop = true;
@@ -237,9 +243,9 @@ function formatTime(t) {
                     that.audio.loop = false;
                     H("btn-loop").innerHTML("Loop: ×");
                 }
-            };
+            });
  
-            H("btn-order").el.onclick = function() {
+            H("btn-order").click(function() {
                 that.order = 1 - that.order;
                 if (that.order == 1) {
                     that.audio.onended = function() {
@@ -253,7 +259,7 @@ function formatTime(t) {
                     H("btn-order").innerHTML("Order: ×");
                 }
                 
-            };
+            });
             
             var nodeList = document.querySelectorAll('#folderlist a');
             for(var i = 0; i < nodeList.length; i++) {
