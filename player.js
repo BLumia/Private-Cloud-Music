@@ -20,6 +20,9 @@ function formatTime(t) {
             else this.el = selector;
             return this;
         },
+        css: function(property, value) {
+            if(this.el) this.el.style.cssText += ';' + property + ":" + value;
+        },
         innerHTML: function(text) {
             if(this.el) this.el.innerHTML = text;
         }
@@ -28,15 +31,15 @@ function formatTime(t) {
         return Helper.entry(selector);
     }
     var Player = {
-        path : null, // sample: 'Test/'
-        data : null,
-        audio : document.getElementsByTagName('audio')[0],
-        currentIndex : -1,
+        path: null, // sample: 'Test/'
+        data: null,
+        audio: document.getElementsByTagName('audio')[0],
+        currentIndex: -1,
         loop: 0,
         order: 0,
-        playlist : H("playlist").el,
-        folderlist : H("folderlist").el,
-        nowPlaying : H("nowPlaying").el,
+        playlist: H("playlist").el,
+        folderlist: H("folderlist").el,
+        nowPlaying: H("nowPlaying").el,
         
         playAtIndex: function(i) {
             // FIXME: trigger this when audio doesn't finished load will cause play promise error.
@@ -164,11 +167,11 @@ function formatTime(t) {
             this.audio.ontimeupdate = function() {
                 H("curTime").innerHTML(formatTime(Player.audio.currentTime));
                 H("totalTime").innerHTML(formatTime(Player.audio.duration));
-                H("timebar").el.style.width = Player.audio.currentTime / Player.audio.duration*100+"%";
+                H("timebar").css("width", Player.audio.currentTime / Player.audio.duration*100+"%");
                 var r = 0;
                 for(var i=0; i<Player.audio.buffered.length; ++i)
                     r = r<Player.audio.buffered.end(i) ? Player.audio.buffered.end(i) : r;
-                H("bufferbar").el.style.width = r / Player.audio.duration*100+"%";
+                H("bufferbar").css("width", r / Player.audio.duration*100+"%");
             };
             
             this.audio.onpause = function() {
