@@ -1,7 +1,8 @@
 ; // Private Cloud Music - player.js
 ; // Licence: WTFPL
 ; // BLumia - 2016/11/11
-; // szO Chris && 2jjy Orz
+; // szO Chris && 2jjy && jxpxxzj Orz
+; //     ↑ Moe    ↑ Moe   ↑ Moe
 
 // formatTime by Chrissssss
 function formatTime(t) {
@@ -12,6 +13,20 @@ function formatTime(t) {
 }
 
 (function() {
+    var Helper = {
+        el: null,
+        entry: function(selector) {
+            if (typeof selector == 'string') this.el = document.getElementById(selector);
+            else this.el = selector;
+            return this;
+        },
+        innerHTML: function(text) {
+            if(this.el) this.el.innerHTML = text;
+        }
+    }
+    var H = function(selector) {
+        return Helper.entry(selector);
+    }
     var Player = {
         path : null, // sample: 'Test/'
         data : null,
@@ -19,9 +34,9 @@ function formatTime(t) {
         currentIndex : -1,
         loop: 0,
         order: 0,
-        playlist : document.getElementById("playlist"),
-        folderlist : document.getElementById("folderlist"),
-        nowPlaying : document.getElementById("nowPlaying"),
+        playlist : H("playlist").el,
+        folderlist : H("folderlist").el,
+        nowPlaying : H("nowPlaying").el,
         
         playAtIndex: function(i) {
             // FIXME: trigger this when audio doesn't finished load will cause play promise error.
@@ -31,7 +46,7 @@ function formatTime(t) {
             this.audio.load();
             this.audio.play();
             window.history.replaceState("","Useless Title","#/"+this.path+this.data[i].fileName+"/"); // title seems be fucked.
-            this.nowPlaying.innerHTML = decodeURIComponent(this.data[i].fileName);
+            H(this.nowPlaying).innerHTML(decodeURIComponent(this.data[i].fileName));
         },
         
         freshFolderlist: function(callback) {
@@ -122,7 +137,7 @@ function formatTime(t) {
                 this.path = urlMatch[1];
                 this.audio.src = (this.path + urlMatch[2]);
                 this.audio.play();
-                this.nowPlaying.innerHTML = decodeURIComponent(urlMatch[2]);
+                H(this.nowPlaying).innerHTML(decodeURIComponent(urlMatch[2]));
             }
             // Only match folder name.
             if (!isUrlMatched) {
@@ -141,31 +156,31 @@ function formatTime(t) {
                 that.urlMatch();
                 that.fetchData();
             });
-            document.getElementById("btn-loop").innerHTML = Player.loop == 1 ? 'Loop: √' : 'Loop: ×';
-            document.getElementById("btn-order").innerHTML = Player.order == 1 ? 'Order: √' : 'Order: ×';
+            H("btn-loop").innerHTML(Player.loop == 1 ? 'Loop: √' : 'Loop: ×');
+            H("btn-order").innerHTML(Player.order == 1 ? 'Order: √' : 'Order: ×');
         },
  
         ready : function() {
             this.audio.ontimeupdate = function() {
-                document.getElementById("curTime").innerHTML = formatTime(Player.audio.currentTime);
-                document.getElementById("totalTime").innerHTML = formatTime(Player.audio.duration);
-                document.getElementById("timebar").style.width = Player.audio.currentTime / Player.audio.duration*100+"%";
+                H("curTime").innerHTML(formatTime(Player.audio.currentTime));
+                H("totalTime").innerHTML(formatTime(Player.audio.duration));
+                H("timebar").el.style.width = Player.audio.currentTime / Player.audio.duration*100+"%";
                 var r = 0;
                 for(var i=0; i<Player.audio.buffered.length; ++i)
                     r = r<Player.audio.buffered.end(i) ? Player.audio.buffered.end(i) : r;
-                document.getElementById("bufferbar").style.width = r / Player.audio.duration*100+"%";
+                H("bufferbar").el.style.width = r / Player.audio.duration*100+"%";
             };
             
             this.audio.onpause = function() {
-                document.getElementById("btn-play").innerHTML="Play";
+                H("btn-play").innerHTML("Play");
             }
             
             this.audio.onplay = function() {
-                document.getElementById("btn-play").innerHTML="Pause";
+                H("btn-play").innerHTML("Pause");
             }
             
             var that = this;
-            document.getElementById("progressbar").onclick = function(e) {
+            H("progressbar").el.onclick = function(e) {
                 var sr=this.getBoundingClientRect();
                 var p=(e.clientX-sr.left)/sr.width;
                 that.audio.currentTime=that.audio.duration*p;
@@ -175,22 +190,22 @@ function formatTime(t) {
             for(let i = 0; i < nodeList.length; i++) {
                 let el = nodeList[i];
                 el.onclick = function() {
-                    if(that.data[that.currentIndex]) that.nowPlaying.innerHTML = decodeURIComponent(that.data[that.currentIndex].fileName);
+                    if(that.data[that.currentIndex]) H(that.nowPlaying).innerHTML(decodeURIComponent(that.data[that.currentIndex].fileName));
                 };
             }
 
-            document.getElementById("btn-play").onclick = function() {
+            H("btn-play").el.onclick = function() {
                 if(that.audio.paused) {
                     that.audio.play();
                 } else {
                     that.audio.pause();
                 }
                 if (that.currentIndex == -1 && that.audio.readyState == 0) {
-                    document.getElementById("btn-next").click();
+                    H("btn-next").el.click();
                 }
             };
 
-            document.getElementById("btn-next").onclick = function() {
+            H("btn-next").el.onclick = function() {
                 if (that.currentIndex == -1) {
                     that.playAtIndex(0);
                 } else if (that.currentIndex == (that.data.length - 1)) {
@@ -200,7 +215,7 @@ function formatTime(t) {
                 }
             };
 
-            document.getElementById("btn-prev").onclick = function() {
+            H("btn-prev").el.onclick = function() {
                 if (that.currentIndex == -1) {
                     that.playAtIndex(0);
                 } else if (that.currentIndex == 0) {
@@ -210,29 +225,29 @@ function formatTime(t) {
                 }
             };
 
-            document.getElementById("btn-loop").onclick = function() {
+            H("btn-loop").el.onclick = function() {
                 that.loop = 1 - that.loop;
                 if (that.loop == 1) {
                     that.audio.loop = true;
-                    document.getElementById("btn-loop").innerHTML="Loop: √";
+                    H("btn-loop").innerHTML("Loop: √");
                 } else {
                     that.audio.loop = false;
-                    document.getElementById("btn-loop").innerHTML="Loop: ×";
+                    H("btn-loop").innerHTML("Loop: ×");
                 }
             };
  
-            document.getElementById("btn-order").onclick = function() {
+            H("btn-order").el.onclick = function() {
                 that.order = 1 - that.order;
                 if (that.order == 1) {
                     that.audio.onended = function() {
                         if (that.loop == 0) {
-                            document.getElementById("btn-next").click();
+                            H("btn-next").el.click();
                         }
                     };
-                    document.getElementById("btn-order").innerHTML="Order: √";
+                    H("btn-order").innerHTML("Order: √");
                 } else {
                     that.audio.onended = undefined;
-                    document.getElementById("btn-order").innerHTML="Order: ×";
+                    H("btn-order").innerHTML("Order: ×");
                 }
                 
             };
