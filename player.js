@@ -64,7 +64,7 @@ function formatTime(t) {
                     console.error("Fetch error. Reason: " + data.message + " Url: ./api.php");
                     return;
                 }
-                data.result.data.forEach(function(item, i){
+                data.result.data.forEach(function(item, i) {
                     var decodedFolderName = decodeURIComponent(item);
                     if (that.path == null) that.path = item + '/';
                     // attr aim data as uriencoded path.
@@ -107,20 +107,20 @@ function formatTime(t) {
         },
  
         freshPlaylist : function() {
+            var that = this;
             var data = this.data;
             var songTitle = '';
             this.playlist.innerHTML = '';
-            data.forEach((item, i) => {
+            data.forEach(function(item, i) {
                 songTitle = decodeURIComponent(item.fileName);
                 var el = document.createElement("a");
                 el.setAttribute('index', i);
                 var subEl = document.createElement("li");
                 subEl.textContent = songTitle;
                 el.appendChild(subEl);
-                this.playlist.appendChild(el);
+                that.playlist.appendChild(el);
             });
             // everytime after update playlist dom, do this.
-            var that = this;
             var nodeList = document.querySelectorAll('#playlist a');
             for(var i = 0; i < nodeList.length; i++) {
                 var el = nodeList[i];
