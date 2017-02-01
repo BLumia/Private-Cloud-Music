@@ -25,7 +25,7 @@ function formatTime(t) {
         },
         click: function(handler) {
             if(!this.el) return this;
-            if (typeof(handler) == "undefined" || typeof(handler) == "function") this.el.onclick = handler;
+            if (typeof(handler) == "function") this.el.onclick = handler;
             else this.el.click();
             return this;
         },
@@ -46,6 +46,15 @@ function formatTime(t) {
         playlist: H("playlist").el,
         folderlist: H("folderlist").el,
         nowPlaying: H("nowPlaying").el,
+        
+        updateMetadata: function() {
+            if ('mediaSession' in navigator) {
+                window.navigator.mediaSession.metadata = new MediaMetadata({
+                    title: nowPlaying.innerHTML,
+                    album: decodeURIComponent(this.path)
+                });
+            }
+        },
         
         playAtIndex: function(i) {
             // FIXME: trigger this when audio doesn't finished load will cause play promise error.
@@ -100,6 +109,7 @@ function formatTime(t) {
         },
         
         fetchData: function() {
+            var that = this;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "./api.php", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
@@ -110,14 +120,14 @@ function formatTime(t) {
                     console.error("Fetch error. Reason: " + data.message + " Url: ./api.php");
                     return;
                 }
-                Player.data = data.result.data;
-                Player.freshPlaylist();
+                that.data = data.result.data;
+                that.freshPlaylist();
             };
             xhr.onerror = function() {
                 console.error("Ajax load playlist failed. Status: " + xhr.status + " Url: ./api.php");
-                Player.data = [];
+                that.data = [];
             };
-            xhr.send("do=getplaylist&folder="+Player.path);
+            xhr.send("do=getplaylist&folder="+that.path);
         },
  
         freshPlaylist : function() {
@@ -178,6 +188,8 @@ function formatTime(t) {
         },
  
         ready : function() {
+            var that = this;
+            
             this.audio.ontimeupdate = function() {
                 H("curTime").innerHTML(formatTime(Player.audio.currentTime));
                 H("totalTime").innerHTML(formatTime(Player.audio.duration));
@@ -194,9 +206,9 @@ function formatTime(t) {
 
             this.audio.onplay = function() {
                 H("btn-play").innerHTML("Pause");
+                that.updateMetadata();
             }
 
-            var that = this;
             H("progressbar").click(function(e) {
                 var sr=this.getBoundingClientRect();
                 var p=(e.clientX-sr.left)/sr.width;
@@ -218,7 +230,7 @@ function formatTime(t) {
                     that.audio.pause();
                 }
                 if (that.currentIndex == -1 && that.audio.readyState == 0) {
-                    H("btn-next").el.click();
+                    H("btn-next").click();
                 }
             });
 
@@ -258,7 +270,7 @@ function formatTime(t) {
                 if (that.order == 1) {
                     that.audio.onended = function() {
                         if (that.loop == 0) {
-                            H("btn-next").el.click();
+                            H("btn-next").click();
                         }
                     };
                     H("btn-order").innerHTML("Order: √");
@@ -266,8 +278,12 @@ function formatTime(t) {
                     that.audio.onended = undefined;
                     H("btn-order").innerHTML("Order: ×");
                 }
-                
             });
+            
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.setActionHandler('previoustrack', function() { H("btn-prev").click(); });
+                navigator.mediaSession.setActionHandler('nexttrack', function() { H("btn-next").click(); });
+            }
         }
     };
  
