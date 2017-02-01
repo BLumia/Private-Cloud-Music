@@ -86,6 +86,14 @@ function formatTime(t) {
                 console.error("Ajax load folders failed. Status: " + xhr.status + " Url: ./api.php");
             };
             xhr.onloadend = function() {
+                var nodeList = document.querySelectorAll('#folderlist a');
+                for(var i = 0; i < nodeList.length; i++) {
+                    var el = nodeList[i];
+                    el.onclick = function() {
+                        that.path = this.getAttribute('aim') + '/';
+                        that.fetchData();
+                    };
+                }
                 typeof callback === 'function' && callback();
             }
             xhr.send("do=getfolders");
@@ -260,15 +268,6 @@ function formatTime(t) {
                 }
                 
             });
-            
-            var nodeList = document.querySelectorAll('#folderlist a');
-            for(var i = 0; i < nodeList.length; i++) {
-                var el = nodeList[i];
-                el.onclick = function() {
-                    that.path = this.getAttribute('aim') + '/';
-                    that.fetchData();
-                };
-            }
         }
     };
  
