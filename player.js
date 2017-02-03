@@ -162,6 +162,8 @@ class Player {
     }
 
     ready() {
+        const that = this; 
+        
         this.audio.ontimeupdate = () => {
             document.getElementById("curTime").innerHTML = formatTime(this.audio.currentTime);
             document.getElementById("totalTime").innerHTML = formatTime(this.audio.duration);
@@ -178,9 +180,9 @@ class Player {
             
         this.audio.onplay = () => {
             document.getElementById("btn-play").innerHTML="Pause";
+            that.updateMetadata();
         };
-
-        const that = this;  
+         
         document.getElementById("progressbar").onclick = function(e) {
             const sr=this.getBoundingClientRect();
             const p=(e.clientX-sr.left)/sr.width;
@@ -251,5 +253,10 @@ class Player {
                 document.getElementById("btn-order").innerHTML="Order: ×";
             }
         };
+        
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setActionHandler('previoustrack', function() { document.getElementById("btn-prev").click(); });
+            navigator.mediaSession.setActionHandler('nexttrack', function() { document.getElementById("btn-next").click(); });
+        }
     }
 }
