@@ -19,14 +19,26 @@ class Player {
         this.loop = 0;
         this.order = 0;
         this.audio = config.audioEl;
-        this.playlist = document.getElementById("playlist"),
-        this.folderlist = document.getElementById("folderlist"),
-        this.nowPlaying = document.getElementById('nowPlaying'),
-        this.freshFolderlist();
-        this.urlMatch();
-        this.fetchData();
+        this.playlist = document.getElementById("playlist");
+        this.folderlist = document.getElementById("folderlist");
+        this.nowPlaying = document.getElementById('nowPlaying');
+        let that = this;
+        this.freshFolderlist(function() {
+            that.urlMatch();
+            that.fetchData();
+        });
+        
         document.getElementById("btn-loop").innerHTML = this.loop == 1 ? 'Loop: √' : 'Loop: ×';
         document.getElementById("btn-order").innerHTML = this.order == 1 ? 'Order: √' : 'Order: ×';
+    }
+    
+    updateMetadata() {
+        if ('mediaSession' in navigator) {
+            window.navigator.mediaSession.metadata = new MediaMetadata({
+                title: nowPlaying.innerHTML,
+                album: decodeURIComponent(this.path)
+            });
+        }
     }
 
     playAtIndex(i) {
@@ -40,9 +52,9 @@ class Player {
         this.nowPlaying.innerHTML = decodeURIComponent(this.data[i].fileName);
     }
         
-    freshFolderlist() {
+    freshFolderlist(callback) {
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", this.api, false);
+        xhr.open("POST", this.api, true);
         xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         const that = this;
         xhr.onreadystatechange = () => {
@@ -67,6 +79,17 @@ class Player {
         xhr.onerror = () => {
             console.error("Ajax load folders failed. Status: " + xhr.status + " Url: " + that.api);
         };
+        xhr.onloadend = () => {
+            var nodeList = document.querySelectorAll('#folderlist a');
+            for(let i = 0; i < nodeList.length; i++) {
+                let el = nodeList[i];
+                el.onclick = function() {
+                    that.path = this.getAttribute('aim') + '/';
+                    that.fetchData();
+                };
+            }
+            typeof callback === 'function' && callback();
+        }
         xhr.send("do=getfolders");
     }
         
@@ -227,16 +250,6 @@ class Player {
                 this.audio.onended = undefined;
                 document.getElementById("btn-order").innerHTML="Order: ×";
             }
-                
         };
-        
-        var nodeList = document.querySelectorAll('#folderlist a');
-        for(let i = 0; i < nodeList.length; i++) {
-            let el = nodeList[i];
-            el.onclick = function() {
-                that.path = this.getAttribute('aim') + '/';
-                that.fetchData();
-            };
-        }
     }
 }
