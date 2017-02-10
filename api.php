@@ -43,23 +43,24 @@
 	
 	switch($command) {
 		case "getplaylist":
-			if(!isset($_POST['folder'])) fire(400, "Illegal request!");
+			$requestFolderStr = "";
+			if(isset($_POST['folder'])) $requestFolderStr = $_POST['folder'];
 			$actualSongFolder = null;
-			if(is_dir($songFolderPath."/".urldecode($_POST['folder']))) {
-				$actualSongFolder = $songFolderPath."/".urldecode($_POST['folder']);
+			if(is_dir($songFolderPath."/".urldecode($requestFolderStr))) {
+				$actualSongFolder = $songFolderPath."/".urldecode($requestFolderStr);
 			} else {
 				// Solve problem if using weird charset.
 				// This will cause problem if given path is not a single folder.
 				// eg. "Folder/Subfolder/".
 				$folderList = scandir($songFolderPath);
 				foreach($folderList as $oneFolderName) {
-					if (GIVEMETHEFUCKINGUTF8($oneFolderName)."/"==urldecode($_POST['folder'])) {
+					if (GIVEMETHEFUCKINGUTF8($oneFolderName)."/"==urldecode($requestFolderStr)) {
 						$actualSongFolder="{$songFolderPath}/{$oneFolderName}";
 						break;
 					}
 				}
 			}
-			if($actualSongFolder == null) fire(404, "Folder \"{$_POST['folder']}\" not exist!");
+			if($actualSongFolder == null) fire(404, "Folder \"{$requestFolderStr}\" not exist!");
 			$fileList = scandir($actualSongFolder);
 			$musicList = array();
 			$subFolderList = array();
@@ -68,7 +69,7 @@
 				$utf8FileName = GIVEMETHEFUCKINGUTF8($oneFileName);
 				$curFilePath = "{$actualSongFolder}/{$oneFileName}";
 				if (is_dir($curFilePath)) {
-					array_push($subFolderList, $_POST['folder'].rawurlencode($utf8FileName));
+					array_push($subFolderList, $requestFolderStr.rawurlencode($utf8FileName));
 					continue;
 				}
 				if (in_array(getFileExtension($utf8FileName),$allowedExts)) {

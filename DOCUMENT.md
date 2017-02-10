@@ -16,7 +16,7 @@
 
 * POST:
 	+ 'do' = "getplaylist"
-	+ 'folder' = folder name
+	+ 'folder' = folder name (optional, default value = "")
 
 * RETURN:
 	json with the following struct. (if folder exist)

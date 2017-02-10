@@ -105,7 +105,7 @@ function formatTime(t) {
                 }
                 typeof callback === 'function' && callback();
             }
-            xhr.send("do=getplaylist&folder=");
+            xhr.send("do=getplaylist");
         },
         
         fetchData: function() {
