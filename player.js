@@ -79,7 +79,7 @@ function formatTime(t) {
                     console.error("Fetch error. Reason: " + data.message + " Url: ./api.php");
                     return;
                 }
-                data.result.data.forEach(function(item, i) {
+                data.result.data.subFolderList.forEach(function(item, i) {
                     var decodedFolderName = decodeURIComponent(item);
                     if (that.path == null) that.path = item + '/';
                     // attr aim data as uriencoded path.
@@ -105,7 +105,7 @@ function formatTime(t) {
                 }
                 typeof callback === 'function' && callback();
             }
-            xhr.send("do=getfolders");
+            xhr.send("do=getplaylist&folder=/");
         },
         
         fetchData: function() {

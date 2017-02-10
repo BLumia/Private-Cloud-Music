@@ -28,6 +28,7 @@
 			504 => "HTTP/1.1 504 Gateway Time-out"
 		);
 		header('Content-Type: application/json');
+		//header("Access-Control-Allow-Origin: *");
 		@header($httpStatusCode[$statusCode]);
 		exit(json_encode(compact("status", "message", "result")));
 	}
@@ -41,21 +42,6 @@
 	$command = strtolower($_POST['do']);
 	
 	switch($command) {
-		case "getfolders":
-			$fileList = scandir($songFolderPath);
-			$folderList = array();
-			foreach($fileList as $oneFileName) {
-				if($oneFileName == "." || $oneFileName == "..") continue;
-				$utf8FileName = GIVEMETHEFUCKINGUTF8($oneFileName);
-				$oneFilePath = "{$songFolderPath}/{$oneFileName}";
-				// Check ignore strategy config file?
-				if (is_dir($oneFilePath)) {
-					array_push($folderList, rawurlencode($utf8FileName));
-				}
-			}
-			$result = array("type"=>"folderList", "data"=>$folderList);
-			fire(200, "OK", $result);
-			break;
 		case "getplaylist":
 			if(!isset($_POST['folder'])) fire(400, "Illegal request!");
 			$actualSongFolder = null;

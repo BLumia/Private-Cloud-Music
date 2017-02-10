@@ -12,27 +12,6 @@
 
 ## API Spec
 
-### Get folder list API:
-
-* POST:
-	+ 'do' = "getfolders"
-
-* RETURN:
-	+ json with the following struct.
-
-``` json
-{
-	"status": 200,
-	"message": "OK",
-	"result":{
-		"type": "folderList",
-		"data": [
-			"Folder1", "Folder2", "Folder3"
-		]
-	}
-}
-```
-
 ### Get file list of given folder name.
 
 * POST:
@@ -86,14 +65,6 @@
 ## Example
 
 We assume your Private Cloud Music backend can be access at url `http://foo.bar/baz/api.php` and we use `wget` for the following example.
-
-### Get folder list API:
-
-``` bash
-	wget --post-data "do=getfolders" http://foo.bar/baz/api.php
-```
-
-This will get the folder list since we **post** a `do` parameter to the backend and the value is `getfolders`.
 
 ### Get file list of given folder name.
 
