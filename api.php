@@ -59,19 +59,32 @@
 		case "getplaylist":
 			if(!isset($_POST['folder'])) fire(400, "Illegal request!");
 			$actualSongFolder = null;
-			$folderList = scandir($songFolderPath);
-			foreach($folderList as $oneFolderName) {
-				if (GIVEMETHEFUCKINGUTF8($oneFolderName)."/"==urldecode($_POST['folder'])) {
-					$actualSongFolder="{$songFolderPath}/{$oneFolderName}";
-					break;
+			if(is_dir($songFolderPath."/".urldecode($_POST['folder']))) {
+				$actualSongFolder = $songFolderPath."/".urldecode($_POST['folder']);
+			} else {
+				// Solve problem if using weird charset.
+				// This will cause problem if given path is not a single folder.
+				// eg. "Folder/Subfolder/".
+				$folderList = scandir($songFolderPath);
+				foreach($folderList as $oneFolderName) {
+					if (GIVEMETHEFUCKINGUTF8($oneFolderName)."/"==urldecode($_POST['folder'])) {
+						$actualSongFolder="{$songFolderPath}/{$oneFolderName}";
+						break;
+					}
 				}
 			}
 			if($actualSongFolder == null) fire(404, "Folder \"{$_POST['folder']}\" not exist!");
 			$fileList = scandir($actualSongFolder);
 			$musicList = array();
+			$subFolderList = array();
 			foreach($fileList as $oneFileName) {
+				if($oneFileName == "." || $oneFileName == "..") continue;
 				$utf8FileName = GIVEMETHEFUCKINGUTF8($oneFileName);
 				$curFilePath = "{$actualSongFolder}/{$oneFileName}";
+				if (is_dir($curFilePath)) {
+					array_push($subFolderList, $_POST['folder'].rawurlencode($utf8FileName));
+					continue;
+				}
 				if (in_array(getFileExtension($utf8FileName),$allowedExts)) {
 					array_push($musicList, 
 						array(
@@ -82,7 +95,7 @@
 					);
 				}
 			}
-			$result = array("type"=>"fileList", "data"=>$musicList);
+			$result = array("type"=>"fileList", "data"=>compact("musicList","subFolderList"));
 			fire(200, "OK", $result);
 			break;
 		default:

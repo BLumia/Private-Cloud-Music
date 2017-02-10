@@ -120,7 +120,7 @@ function formatTime(t) {
                     console.error("Fetch error. Reason: " + data.message + " Url: ./api.php");
                     return;
                 }
-                that.data = data.result.data;
+                that.data = data.result.data.musicList;
                 that.freshPlaylist();
             };
             xhr.onerror = function() {

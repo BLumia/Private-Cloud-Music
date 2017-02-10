@@ -48,18 +48,23 @@
 	"message": "OK",
 	"result":{
 		"type": "fileList",
-		"data": [
-			{
-				"fileName": "FileName.mp3",
-				"fileSize": 123123123,
-				"modifiedTime": "1313065072"
-			},
-			{
-				"fileName": "FileName2.wav",
-				"fileSize": 123123123,
-				"modifiedTime": "1313065072"
-			}
-		]
+		"data": {
+			"musicList": [
+				{
+					"fileName": "FileName.mp3",
+					"fileSize": 123123123,
+					"modifiedTime": "1313065072"
+				},
+				{
+					"fileName": "FileName2.wav",
+					"fileSize": 123123123,
+					"modifiedTime": "1313065072"
+				}
+			],
+			"subFolderList": [
+				"FolderA/SubfolderA", "FolderA/SubfolderB"
+			]
+		}
 	}
 }
 ```
