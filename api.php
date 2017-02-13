@@ -27,9 +27,12 @@
 			503 => "HTTP/1.1 503 Service Unavailable",
 			504 => "HTTP/1.1 504 Gateway Time-out"
 		);
+		if (function_exists('http_response_code')) {
+			http_response_code(intval($status));
+		} else {
+			@header($httpStatusCode[$status]);
+		}
 		header('Content-Type: application/json');
-		//header("Access-Control-Allow-Origin: *");
-		@header($httpStatusCode[$statusCode]);
 		exit(json_encode(compact("status", "message", "result")));
 	}
 	
