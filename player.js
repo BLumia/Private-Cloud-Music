@@ -16,13 +16,33 @@ function formatTime(t) {
     var Helper = {
         el: null,
         entry: function(selector) {
-            if (typeof selector == 'string') this.el = document.getElementById(selector);
+            if (typeof selector == 'string') {
+				if (selector[0] == '<') {
+					var singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/;
+					if (singleTagRE.test(selector)) this.el = document.createElement(RegExp.$1);
+				} else {
+					this.el = document.getElementById(selector);
+				}
+			}
             else this.el = selector;
             return this;
         },
         css: function(property, value) {
             if(this.el) this.el.style.cssText += ';' + property + ":" + value;
+			return this;
         },
+		attr: function(property, value) {
+            if(this.el) this.el.setAttribute(property, value);
+			return this;
+        },
+		append: function(node) {
+			if(this.el) this.el.appendChild(node);
+			return this;
+		},
+		text: function(content) {
+			if(this.el) this.el.textContent = content;
+			return this;
+		},
         click: function(handler) {
             if(!this.el) return this;
             if (typeof(handler) == "function") this.el.onclick = handler;
@@ -31,10 +51,11 @@ function formatTime(t) {
         },
         innerHTML: function(text) {
             if(this.el) this.el.innerHTML = text;
+			return this;
         }
     }
     var H = function(selector) {
-        return Helper.entry(selector);
+        return new Helper.entry(selector);
     }
     var Player = {
         path: null, // sample: 'Test/'
@@ -83,11 +104,8 @@ function formatTime(t) {
                     var decodedFolderName = decodeURIComponent(item);
                     if (that.path == null) that.path = item + '/';
                     // attr aim data as uriencoded path.
-                    var el = document.createElement("a");
-                    el.setAttribute('aim', item);
-                    var subEl = document.createElement("li");
-                    subEl.textContent = decodedFolderName + '/';
-                    el.appendChild(subEl);
+                    var el = H("<a>").attr('aim', item).el;
+                    el.appendChild(H("<li>").text(decodedFolderName + '/').el);
                     that.folderlist.appendChild(el);
                 });
             };
@@ -122,6 +140,7 @@ function formatTime(t) {
                 }
                 that.data = data.result.data.musicList;
                 that.freshPlaylist();
+				that.freshSubFolderList(data.result.data.subFolderList);
             };
             xhr.onerror = function() {
                 console.error("Ajax load playlist failed. Status: " + xhr.status + " Url: ./api.php");
@@ -154,6 +173,29 @@ function formatTime(t) {
             }
         },
         
+		freshSubFolderList : function(list) {
+			var that = this;
+			H("subfolderlist").innerHTML("");
+			list.forEach(function(item, i) {
+                var decodedFolderName = decodeURIComponent(item);
+				// attr aim data as uriencoded path.
+				var el = document.createElement("a");
+				el.setAttribute('aim', item);
+				var subEl = document.createElement("li");
+				subEl.textContent = decodedFolderName + '/';
+				el.appendChild(subEl);
+				H("subfolderlist").el.appendChild(el);
+            });
+			var nodeList = document.querySelectorAll('#subfolderlist a');
+			for(var i = 0; i < nodeList.length; i++) {
+				var el = nodeList[i];
+				el.onclick = function() {
+					that.path = this.getAttribute('aim') + '/';
+					that.fetchData();
+				};
+			}
+		},
+		
         urlMatch : function() {
             var isUrlMatched = false;
             // Match folder name and song title.
