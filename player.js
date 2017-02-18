@@ -17,13 +17,13 @@ function formatTime(t) {
         this.el = null;
         this.entry = function(selector) {
             if (typeof selector == 'string') {
-				if (selector[0] == '<') {
-					var singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/;
-					if (singleTagRE.test(selector)) this.el = document.createElement(RegExp.$1);
-				} else {
-					this.el = document.getElementById(selector);
-				}
-			}
+                if (selector[0] == '<') {
+                    var singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/;
+                    if (singleTagRE.test(selector)) this.el = document.createElement(RegExp.$1);
+                } else {
+                    this.el = document.getElementById(selector);
+                }
+            }
             else this.el = selector;
             return this;
         }
@@ -31,20 +31,20 @@ function formatTime(t) {
     Helper.prototype = {    
         css: function(property, value) {
             if(this.el) this.el.style.cssText += ';' + property + ":" + value;
-			return this;
+            return this;
         },
-		attr: function(property, value) {
+        attr: function(property, value) {
             if(this.el) this.el.setAttribute(property, value);
-			return this;
+            return this;
         },
-		append: function(node) {
-			if(this.el) this.el.appendChild(node);
-			return this;
-		},
-		text: function(content) {
-			if(this.el) this.el.textContent = content;
-			return this;
-		},
+        append: function(node) {
+            if(this.el) this.el.appendChild(node);
+            return this;
+        },
+        text: function(content) {
+            if(this.el) this.el.textContent = content;
+            return this;
+        },
         click: function(handler) {
             if(!this.el) return this;
             if (typeof(handler) == "function") this.el.onclick = handler;
@@ -53,7 +53,7 @@ function formatTime(t) {
         },
         innerHTML: function(text) {
             if(this.el) this.el.innerHTML = text;
-			return this;
+            return this;
         }
     }
     var H = function(selector) {
@@ -93,7 +93,7 @@ function formatTime(t) {
         
         freshFolderlist: function(callback) {
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "  ./api.php", true);
+            xhr.open("POST", "./api.php", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             var that = this;
             xhr.onreadystatechange = function () {
@@ -108,10 +108,10 @@ function formatTime(t) {
                     if (that.path == null) that.path = item + '/';
                     // attr aim data as uriencoded path.
                     H(that.folderlist).append(
-						H("<a>").attr('aim', item).append(
-							H("<li>").text(decodedFolderName + '/').el
-						).el
-					);
+                        H("<a>").attr('aim', item).append(
+                            H("<li>").text(decodedFolderName + '/').el
+                        ).el
+                    );
                 });
             };
             xhr.onerror = function() {
@@ -145,7 +145,7 @@ function formatTime(t) {
                 }
                 that.data = data.result.data.musicList;
                 that.freshPlaylist();
-				that.freshSubFolderList(data.result.data.subFolderList);
+                that.freshSubFolderList(data.result.data.subFolderList);
             };
             xhr.onerror = function() {
                 console.error("Ajax load playlist failed. Status: " + xhr.status + " Url: ./api.php");
@@ -161,11 +161,11 @@ function formatTime(t) {
             this.playlist.innerHTML = '';
             data.forEach(function(item, i) {
                 songTitle = decodeURIComponent(item.fileName);
-				H(that.playlist).append(
-					H("<a>").attr('index', i).append(
-						H("<li>").text(songTitle).el
-					).el
-				);
+                H(that.playlist).append(
+                    H("<a>").attr('index', i).append(
+                        H("<li>").text(songTitle).el
+                    ).el
+                );
             });
             // everytime after update playlist dom, do this.
             var nodeList = document.querySelectorAll('#playlist a');
@@ -177,28 +177,28 @@ function formatTime(t) {
             }
         },
         
-		freshSubFolderList : function(list) {
-			var that = this;
-			H("subfolderlist").innerHTML("");
-			list.forEach(function(item, i) {
+        freshSubFolderList : function(list) {
+            var that = this;
+            H("subfolderlist").innerHTML("");
+            list.forEach(function(item, i) {
                 var decodedFolderName = decodeURIComponent(item);
-				// attr aim data as uriencoded path.
-				H("subfolderlist").append(
-					H("<a>").attr('aim', item).append(
-						H("<li>").text(decodedFolderName + '/').el
-					).el
-				);
+                // attr aim data as uriencoded path.
+                H("subfolderlist").append(
+                    H("<a>").attr('aim', item).append(
+                        H("<li>").text(decodedFolderName + '/').el
+                    ).el
+                );
             });
-			var nodeList = document.querySelectorAll('#subfolderlist a');
-			for(var i = 0; i < nodeList.length; i++) {
-				var el = nodeList[i];
-				el.onclick = function() {
-					that.path = this.getAttribute('aim') + '/';
-					that.fetchData();
-				};
-			}
-		},
-		
+            var nodeList = document.querySelectorAll('#subfolderlist a');
+            for(var i = 0; i < nodeList.length; i++) {
+                var el = nodeList[i];
+                el.onclick = function() {
+                    that.path = this.getAttribute('aim') + '/';
+                    that.fetchData();
+                };
+            }
+        },
+        
         urlMatch : function() {
             var isUrlMatched = false;
             // Match folder name and song title.
