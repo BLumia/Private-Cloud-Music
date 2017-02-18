@@ -13,9 +13,9 @@ function formatTime(t) {
 }
 
 (function() {
-    var Helper = {
-        el: null,
-        entry: function(selector) {
+    var Helper = function() {
+        this.el = null;
+        this.entry = function(selector) {
             if (typeof selector == 'string') {
 				if (selector[0] == '<') {
 					var singleTagRE = /^<(\w+)\s*\/?>(?:<\/\1>|)$/;
@@ -26,7 +26,9 @@ function formatTime(t) {
 			}
             else this.el = selector;
             return this;
-        },
+        }
+    }
+    Helper.prototype = {    
         css: function(property, value) {
             if(this.el) this.el.style.cssText += ';' + property + ":" + value;
 			return this;
@@ -55,7 +57,8 @@ function formatTime(t) {
         }
     }
     var H = function(selector) {
-        return new Helper.entry(selector);
+        var f = new Helper();
+        return f.entry(selector);
     }
     var Player = {
         path: null, // sample: 'Test/'
@@ -90,7 +93,7 @@ function formatTime(t) {
         
         freshFolderlist: function(callback) {
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "./api.php", true);
+            xhr.open("POST", "  ./api.php", true);
             xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             var that = this;
             xhr.onreadystatechange = function () {
@@ -104,9 +107,11 @@ function formatTime(t) {
                     var decodedFolderName = decodeURIComponent(item);
                     if (that.path == null) that.path = item + '/';
                     // attr aim data as uriencoded path.
-                    var el = H("<a>").attr('aim', item).el;
-                    el.appendChild(H("<li>").text(decodedFolderName + '/').el);
-                    that.folderlist.appendChild(el);
+                    H(that.folderlist).append(
+						H("<a>").attr('aim', item).append(
+							H("<li>").text(decodedFolderName + '/').el
+						).el
+					);
                 });
             };
             xhr.onerror = function() {
@@ -156,12 +161,11 @@ function formatTime(t) {
             this.playlist.innerHTML = '';
             data.forEach(function(item, i) {
                 songTitle = decodeURIComponent(item.fileName);
-                var el = document.createElement("a");
-                el.setAttribute('index', i);
-                var subEl = document.createElement("li");
-                subEl.textContent = songTitle;
-                el.appendChild(subEl);
-                that.playlist.appendChild(el);
+				H(that.playlist).append(
+					H("<a>").attr('index', i).append(
+						H("<li>").text(songTitle).el
+					).el
+				);
             });
             // everytime after update playlist dom, do this.
             var nodeList = document.querySelectorAll('#playlist a');
@@ -179,12 +183,11 @@ function formatTime(t) {
 			list.forEach(function(item, i) {
                 var decodedFolderName = decodeURIComponent(item);
 				// attr aim data as uriencoded path.
-				var el = document.createElement("a");
-				el.setAttribute('aim', item);
-				var subEl = document.createElement("li");
-				subEl.textContent = decodedFolderName + '/';
-				el.appendChild(subEl);
-				H("subfolderlist").el.appendChild(el);
+				H("subfolderlist").append(
+					H("<a>").attr('aim', item).append(
+						H("<li>").text(decodedFolderName + '/').el
+					).el
+				);
             });
 			var nodeList = document.querySelectorAll('#subfolderlist a');
 			for(var i = 0; i < nodeList.length; i++) {
