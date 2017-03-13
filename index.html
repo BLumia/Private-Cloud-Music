@@ -6,8 +6,9 @@
 <meta name="theme-color" content="#f44336">
 <link rel="stylesheet" href="./w3.css">
 <style>
-	.w3-sidenav ul li { padding-left: 2px;}
+	.w3-sidenav ul li {padding-left: 2px;}
 	#playlist li {word-break: break-all;}
+	.ellipsis {overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 </style>
 
 <nav class="w3-sidenav w3-collapse w3-light-grey w3-animate-left w3-card-2" style="z-index: 3; width: 250px; display: none;" id="mySidenav">
@@ -20,9 +21,9 @@
 <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor: pointer; display: none;" id="myOverlay"></div>
 <div class="w3-main" style="margin-left:250px;">
 	<header class="w3-container w3-red w3-top">
-		<h2><span class="w3-opennav w3-xlarge w3-left w3-hide-large" onclick="w3_open()" id="openNav">&#9776;</span>&nbsp;Private Cloud Music</h2>
+		<h2 class="ellipsis"><span class="w3-opennav w3-xlarge w3-left w3-hide-large" onclick="w3_open()" id="openNav">&#9776;</span>&nbsp;Private Cloud Music</h2>
 	</header>
-	<header class="w3-container w3-yellow"><h2>You can't see me</h2></header>
+	<header class="w3-container w3-yellow"><h2 class="ellipsis">You can't see me</h2></header>
 	<ul class="w3-ul w3-hoverable w3-pale-yellow" id="subfolderlist">
 	</ul>
 	<ul class="w3-ul w3-hoverable" style="margin-bottom: 120px;" id="playlist">
@@ -35,7 +36,7 @@
 				<p><span id="curTime">0:00</span></p>
 			</div>
 			<div class="w3-col s8 w3-container w3-center">
-				<p id="nowPlaying">Not playing at all.</p>
+				<p id="nowPlaying" class="ellipsis">Not playing at all.</p>
 				<audio></audio>
 			</div>
 			<div class="w3-col s2 w3-container w3-right-align">
@@ -49,9 +50,9 @@
 			</div>
 		</div>
 		<div class="w3-container w3-center" style="padding:6px 0px;">
-			<button class="w3-btn w3-tiny" id="btn-prev">Prev</button>
+			<button class="w3-btn w3-tiny" id="btn-prev">&lt;&lt;</button>
 			<button class="w3-btn w3-tiny" id="btn-play">Play</button>
-			<button class="w3-btn w3-tiny" id="btn-next">Next</button>
+			<button class="w3-btn w3-tiny" id="btn-next">&gt;&gt;</button>
 			<button class="w3-btn w3-tiny" id="btn-loop">Loop</button>
 			<button class="w3-btn w3-tiny" id="btn-order">Order</button>
 		</div>
