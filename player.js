@@ -261,8 +261,8 @@ function formatTime(t) {
             });
 
             var nodeList = document.getElementsByTagName('button');
-            for(let i = 0; i < nodeList.length; i++) {
-                let el = nodeList[i];
+            for(var i = 0; i < nodeList.length; i++) {
+                var el = nodeList[i];
                 el.onclick = function() {
                     if(that.data[that.currentIndex]) H(that.nowPlaying).innerHTML(decodeURIComponent(that.data[that.currentIndex].fileName));
                 };

@@ -2,6 +2,8 @@
 
 - All APIs are directly send to the backend of Private Cloud Music. For example, `api.php` on your server. and all APIs are using **POST** method. 
 
+- Content-Type of your request should be `x-www-form-urlencoded`. 
+
 - Use `do` parameter to specify what data is requested. and use other additional parameter accroding to your `do` parameter.
 
 - Always return a **json** to process. Contains a http `status` code node, a `message` node. and the most important `result` node.
