@@ -45,7 +45,7 @@
 	$command = strtolower($_POST['do']);
 	
 	switch($command) {
-		case "getplaylist":
+		case "getfilelist":
 			$requestFolderStr = "";
 			if(isset($_POST['folder'])) $requestFolderStr = $_POST['folder'];
 			$actualSongFolder = null;

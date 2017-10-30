@@ -17,7 +17,7 @@
 ### Get file list of given folder name.
 
 * POST:
-	+ 'do' = "getplaylist"
+	+ 'do' = "getfilelist"
 	+ 'folder' = folder name (optional, default value = "")
 
 * RETURN:
@@ -71,7 +71,7 @@ We assume your Private Cloud Music backend can be access at url `http://foo.bar/
 ### Get file list of given folder name.
 
 ``` bash
-	wget --post-data "do=getplaylist&folder=Folder1" http://foo.bar/baz/api.php
+	wget --post-data "do=getfilelist&folder=Folder1" http://foo.bar/baz/api.php
 ```
 
 If `Folder1` exist, this will get the audio file list inside the folder named `Folder1`. Since `do` parameter value is `getplaylist`. If that folder doesn't exist, will get an error contains the http status code and the error message.
