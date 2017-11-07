@@ -151,7 +151,7 @@ function formatTime(t) {
                 console.error("Ajax load playlist failed. Status: " + xhr.status + " Url: ./api.php");
                 that.data = [];
             };
-            xhr.send("do=getplaylist&folder="+that.path);
+            xhr.send("do=getfilelist&folder="+that.path);
         },
  
         freshPlaylist : function() {
