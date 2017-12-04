@@ -48,6 +48,7 @@
 		case "getfilelist":
 			$requestFolderStr = "";
 			if(isset($_POST['folder'])) $requestFolderStr = $_POST['folder'];
+			if(substr($requestFolderStr, -1) != '/') $requestFolderStr.='/';
 			$actualSongFolder = null;
 			if(is_dir($songFolderPath."/".urldecode($requestFolderStr))) {
 				$actualSongFolder = $songFolderPath."/".urldecode($requestFolderStr);
