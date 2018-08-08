@@ -4,12 +4,22 @@
 ; // szO Chris && 2jjy && jxpxxzj Orz
 ; //     ↑ Moe    ↑ Moe   ↑ Moe
 
-// formatTime by Chrissssss
+// formatTime,getCookie by Chrissssss
 function formatTime(t) {
     var m=Math.floor(t/60),s=Math.round(t-Math.floor(t/60)*60);
     if(s<10)return m+":0"+s;
     else if(s==60)return (m+1)+":00";
     else return m+":"+s;
+}
+function getCookie(key) {
+    if (!navigator.cookieEnabled) return "";
+    return document.cookie.replace(new RegExp('(?:(?:^|.*;\\s*)'+key+'\\s*\\=\\s*([^;]*).*$)|^.*$'),'$1');
+}
+function setCookie(cookieName, cookieValue, maxAge = 0) {
+    if (!navigator.cookieEnabled) return;
+    var cookieStr = cookieName + "=" + cookieValue;
+    if (maxAge > 0) cookieStr += ";max-age=" + maxAge;
+    document.cookie = cookieStr;
 }
 
 (function() {
@@ -228,8 +238,10 @@ function formatTime(t) {
                 that.urlMatch();
                 that.fetchData();
             });
-            H("btn-loop").innerHTML(Player.loop == 1 ? 'Loop: √' : 'Loop: ×');
-            H("btn-order").innerHTML(Player.order == 1 ? 'Order: √' : 'Order: ×');
+            this.loop = getCookie("pcm-loop") == "1" ? 1 : 0;
+            this.order = getCookie("pcm-order") == "1" ? 1 : 0;
+            H("btn-loop").innerHTML(this.loop == 1 ? 'Loop: √' : 'Loop: ×');
+            H("btn-order").innerHTML(this.order == 1 ? 'Order: √' : 'Order: ×');
         },
  
         ready : function() {
@@ -308,6 +320,7 @@ function formatTime(t) {
                     that.audio.loop = false;
                     H("btn-loop").innerHTML("Loop: ×");
                 }
+                setCookie("pcm-loop", that.loop, 157680000);
             });
  
             H("btn-order").click(function() {
@@ -323,6 +336,7 @@ function formatTime(t) {
                     that.audio.onended = undefined;
                     H("btn-order").innerHTML("Order: ×");
                 }
+                setCookie("pcm-order", that.order, 157680000);
             });
             
             if ('mediaSession' in navigator) {
