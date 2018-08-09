@@ -89,7 +89,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                 });
             }
         },
-        
+
         playAtIndex: function(i) {
             // FIXME: trigger this when audio doesn't finished load will cause play promise error.
             this.audio.pause();
@@ -100,7 +100,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             window.history.replaceState("","Useless Title","#/"+this.path+this.data[i].fileName+"/"); // title seems be fucked.
             H(this.nowPlaying).innerHTML(decodeURIComponent(this.data[i].fileName));
         },
-        
+
         freshFolderlist: function(callback) {
             var xhr = new XMLHttpRequest();
             xhr.open("POST", "./api.php", true);
@@ -140,7 +140,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             }
             xhr.send("do=getfilelist");
         },
-        
+
         fetchData: function() {
             var that = this;
             var xhr = new XMLHttpRequest();
@@ -186,7 +186,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                 };
             }
         },
-        
+
         freshSubFolderList : function(list) {
             var that = this;
             H("subfolderlist").innerHTML("");
@@ -208,7 +208,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                 };
             }
         },
-        
+
         urlMatch : function() {
             var isUrlMatched = false;
             // Match folder name and song title.
@@ -231,6 +231,30 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                 }
             }
         },
+
+        applyLoop : function() {
+            if (this.loop == 1) {
+                this.audio.loop = true;
+                H("btn-loop").innerHTML("Loop: √");
+            } else {
+                this.audio.loop = false;
+                H("btn-loop").innerHTML("Loop: ×");
+            }
+        },
+
+        applyOrder : function() {
+            if (this.order == 1) {
+                this.audio.onended = function() {
+                    if (this.loop == 0) {
+                        H("btn-next").click();
+                    }
+                };
+                H("btn-order").innerHTML("Order: √");
+            } else {
+                this.audio.onended = undefined;
+                H("btn-order").innerHTML("Order: ×");
+            }
+        },
  
         init : function() {
             var that = this;
@@ -240,8 +264,8 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             });
             this.loop = getCookie("pcm-loop") == "1" ? 1 : 0;
             this.order = getCookie("pcm-order") == "1" ? 1 : 0;
-            H("btn-loop").innerHTML(this.loop == 1 ? 'Loop: √' : 'Loop: ×');
-            H("btn-order").innerHTML(this.order == 1 ? 'Order: √' : 'Order: ×');
+            this.applyLoop();
+            this.applyOrder();
         },
  
         ready : function() {
@@ -313,29 +337,13 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
 
             H("btn-loop").click(function() {
                 that.loop = 1 - that.loop;
-                if (that.loop == 1) {
-                    that.audio.loop = true;
-                    H("btn-loop").innerHTML("Loop: √");
-                } else {
-                    that.audio.loop = false;
-                    H("btn-loop").innerHTML("Loop: ×");
-                }
+                that.applyLoop();
                 setCookie("pcm-loop", that.loop, 157680000);
             });
  
             H("btn-order").click(function() {
                 that.order = 1 - that.order;
-                if (that.order == 1) {
-                    that.audio.onended = function() {
-                        if (that.loop == 0) {
-                            H("btn-next").click();
-                        }
-                    };
-                    H("btn-order").innerHTML("Order: √");
-                } else {
-                    that.audio.onended = undefined;
-                    H("btn-order").innerHTML("Order: ×");
-                }
+                that.applyOrder();
                 setCookie("pcm-order", that.order, 157680000);
             });
             
