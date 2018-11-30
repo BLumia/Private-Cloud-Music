@@ -6,10 +6,11 @@
 
 // formatTime,getCookie by Chrissssss
 function formatTime(t) {
-    var m=Math.floor(t/60),s=Math.round(t-Math.floor(t/60)*60);
-    if(s<10)return m+":0"+s;
-    else if(s==60)return (m+1)+":00";
-    else return m+":"+s;
+    if(isNaN(t))return '--:--';
+    let m=Math.floor(t/60),s=Math.round(t-Math.floor(t/60)*60);
+    if(s<10)return `${m}:0${s}`;
+    else if(s==60)return `${m+1}:00`;
+    else return `${m}:${s}`;
 }
 function getCookie(key) {
     if (!navigator.cookieEnabled) return "";
