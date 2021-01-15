@@ -1,5 +1,7 @@
 ; // Private Cloud Music - player.js
 ; // Licence: WTFPL
+; // This program is free software. It comes without any
+; // warranty, to the extent permitted by applicable law.
 ; // BLumia - 2016/11/11
 ; // szO Chris && 2jjy && jxpxxzj Orz
 ; //     ↑ Moe    ↑ Moe   ↑ Moe
