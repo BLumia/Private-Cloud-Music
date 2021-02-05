@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <meta charset="utf-8">
 <title>Private Playlist</title>
@@ -83,10 +83,7 @@
 			</div>
 		</div>
 		<div class="w3-container">
-			<div id="progressbar" class="w3-progress-container">
-				<div id="bufferbar" class="w3-progressbar" style="background-color:#AAA; width:0%"></div>
-				<div id="timebar" class="w3-progressbar w3-blue" style="width:0%"></div>
-			</div>
+			<pcm-progress id="progress-bar"></pcm-progress>
 		</div>
 		<div class="w3-container w3-center" style="padding:6px 0px;">
 			<button class="w3-btn w3-tiny" id="btn-prev">&lt;&lt;</button>
@@ -98,6 +95,7 @@
 	</div>
 </div> 
 
+<script src="./progress-bar.js"></script>
 <script src="./player.js"></script>
 <script>
 function w3_open() {

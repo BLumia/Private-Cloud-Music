@@ -1,8 +1,5 @@
-; // Private Cloud Music - player.js
-; // Licence: WTFPL
-; // This program is free software. It comes without any
-; // warranty, to the extent permitted by applicable law.
-; // BLumia - 2016/11/11
+; // SPDX-FileCopyrightText: 2021 Gary Wang <toblumia@outlook.com>
+; // SPDX-License-Identifier: MIT
 ; // szO Chris && 2jjy && jxpxxzj Orz
 ; //     ↑ Moe    ↑ Moe   ↑ Moe
 
@@ -46,8 +43,16 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             if(this.el) this.el.style.cssText += ';' + property + ":" + value;
             return this;
         },
-        attr: function(property, value) {
-            if(this.el) this.el.setAttribute(property, value);
+        attr: function(attr, value) {
+            if(this.el) this.el.setAttribute(attr, value);
+            return this;
+        },
+        removeData: function(attr) {
+            if(this.el) this.el.removeAttribute("data-" + attr);
+            return this;
+        },
+        data: function(attr, value) {
+            if(this.el) this.el.setAttribute("data-" + attr, JSON.stringify(value));
             return this;
         },
         append: function(node) {
@@ -73,6 +78,12 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
         var f = new Helper();
         return f.entry(selector);
     }
+	function TrickOrTreat(promiseRsp) {
+		if (!promiseRsp.ok) {
+			throw Error(promiseRsp.statusText); // to cancel the Promise chain...
+		}
+		return promiseRsp.json();
+	}
     var Player = {
         path: null, // sample: 'Test/'
         data: null,
@@ -83,6 +94,13 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
         playlist: H("playlist").el,
         folderlist: H("folderlist").el,
         nowPlaying: H("nowPlaying").el,
+        _currentSongInfoJson: undefined,
+        _chapterNeedUpdate: true,
+
+        setInfoJson: (jsonData) => {
+            this._currentSongInfoJson = jsonData;
+            this._chapterNeedUpdate = true;
+        },
         
         updateMetadata: function() {
             if ('mediaSession' in navigator) {
@@ -93,26 +111,61 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             }
         },
 
+        applyChapterData: () => {
+            if (!this._chapterNeedUpdate) return;
+            if (Player.audio.duration) {
+                if (this._currentSongInfoJson) {
+                    let duration = Player.audio.duration;
+                    let progressChapterData = [];
+                    this._currentSongInfoJson.chapters.forEach((chapter) => {
+                        let chapterObj = {};
+                        chapterObj.start = chapter.start_time / duration * 100;
+                        chapterObj.title = chapter.title;
+                        progressChapterData.push(chapterObj);
+                    });
+                    H("progress-bar").data("chapters", progressChapterData);
+                } else {
+                    H("progress-bar").removeData("chapters");
+                }
+                this._chapterNeedUpdate = false;
+            }
+        },
+
+        fetchAdditionalInfo: (infoJsonfileUrl) => {
+            fetch(infoJsonfileUrl).then(TrickOrTreat).then((data) => {
+				Player.setInfoJson(data);
+			});
+        },
+
         playAtIndex: function(i) {
+            let fileName = this.data[i].fileName;
+            let fullPath = (this.path + fileName);
             // FIXME: trigger this when audio doesn't finished load will cause play promise error.
             this.audio.pause();
             this.currentIndex = i;
-            this.audio.src = (this.path + this.data[i].fileName);
+            this.audio.src = fullPath;
             this.audio.load();
             this.audio.play();
-            window.history.replaceState("","Useless Title","#/"+this.path+this.data[i].fileName+"/"); // title seems be fucked.
-            H(this.nowPlaying).innerHTML(decodeURIComponent(this.data[i].fileName));
+            window.history.replaceState("","Useless Title","#/" + fullPath + "/"); // title seems be fucked.
+            H(this.nowPlaying).innerHTML(decodeURIComponent(fileName));
+
+            if (this.data[i].additionalInfo) {
+                let infoJsonFile = (fullPath.substring(0, fullPath.lastIndexOf('.')) || fullPath) + ".info.json";
+                this.fetchAdditionalInfo(infoJsonFile);
+            } else {
+                this.setInfoJson(undefined);
+            }
         },
 
         freshFolderlist: function(callback) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "./api.php", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            var that = this;
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState != 4 || xhr.status != 200) return;
-                var data = JSON.parse(xhr.responseText);
-                if (data.status != 200) { 
+			var that = this;
+			fetch("./api.php", {
+				method: 'POST',
+				body: new URLSearchParams({
+					'do': 'getfilelist'
+				})
+			}).then(TrickOrTreat).then((data) => {
+				if (data.status != 200) { 
                     console.error("Fetch error. Reason: " + data.message + " Url: ./api.php");
                     return;
                 }
@@ -126,12 +179,8 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                         ).el
                     );
                 });
-            };
-            xhr.onerror = function() {
-                console.error("Ajax load folders failed. Status: " + xhr.status + " Url: ./api.php");
-            };
-            xhr.onloadend = function() {
-                var nodeList = document.querySelectorAll('#folderlist a');
+				
+				var nodeList = document.querySelectorAll('#folderlist a');
                 for(var i = 0; i < nodeList.length; i++) {
                     var el = nodeList[i];
                     el.onclick = function() {
@@ -139,32 +188,25 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                         that.fetchData();
                     };
                 }
-                typeof callback === 'function' && callback();
-            }
-            xhr.send("do=getfilelist");
+				
+				typeof callback === 'function' && callback();
+			});
         },
 
         fetchData: function() {
             var that = this;
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "./api.php", true);
-            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState != 4 || xhr.status != 200) return;
-                var data = JSON.parse(xhr.responseText);
-                if (data.status != 200) { 
-                    console.error("Fetch error. Reason: " + data.message + " Url: ./api.php");
-                    return;
-                }
-                that.data = data.result.data.musicList;
-                that.freshPlaylist();
+			
+			fetch("./api.php", {
+				method: 'POST',
+				body: new URLSearchParams({
+					'do': 'getfilelist',
+					'folder': that.path
+				})
+			}).then(TrickOrTreat).then((data) => {
+				that.data = data.result.data.musicList;
+				that.freshPlaylist();
                 that.freshSubFolderList(data.result.data.subFolderList);
-            };
-            xhr.onerror = function() {
-                console.error("Ajax load playlist failed. Status: " + xhr.status + " Url: ./api.php");
-                that.data = [];
-            };
-            xhr.send("do=getfilelist&folder="+that.path);
+			});
         },
  
         freshPlaylist : function() {
@@ -274,14 +316,15 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
         ready : function() {
             var that = this;
             
-            this.audio.ontimeupdate = function() {
+            this.audio.ontimeupdate = () => {
+                this.applyChapterData();
                 H("curTime").innerHTML(formatTime(Player.audio.currentTime));
                 H("totalTime").innerHTML(formatTime(Player.audio.duration));
-                H("timebar").css("width", Player.audio.currentTime / Player.audio.duration*100+"%");
+                H("progress-bar").attr("value", Player.audio.currentTime / Player.audio.duration*100);
                 var r = 0;
-                for(var i=0; i<Player.audio.buffered.length; ++i)
+                for (var i=0; i<Player.audio.buffered.length; ++i)
                     r = r<Player.audio.buffered.end(i) ? Player.audio.buffered.end(i) : r;
-                H("bufferbar").css("width", r / Player.audio.duration*100+"%");
+				H("progress-bar").attr("buffer", r / Player.audio.duration*100);
             };
             
             this.audio.onpause = function() {
@@ -293,7 +336,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                 that.updateMetadata();
             }
 
-            H("progressbar").click(function(e) {
+            H("progress-bar").click(function(e) {
                 var sr=this.getBoundingClientRect();
                 var p=(e.clientX-sr.left)/sr.width;
                 that.audio.currentTime=that.audio.duration*p;

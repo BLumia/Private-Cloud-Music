@@ -34,12 +34,14 @@
 				{
 					"fileName": "FileName.mp3",
 					"fileSize": 123123123,
-					"modifiedTime": "1313065072"
+					"modifiedTime": "1313065072",
+					"additionalInfo": false
 				},
 				{
 					"fileName": "FileName2.wav",
 					"fileSize": 123123123,
-					"modifiedTime": "1313065072"
+					"modifiedTime": "1313065072",
+					"additionalInfo": false
 				}
 			],
 			"subFolderList": [

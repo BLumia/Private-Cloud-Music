@@ -57,36 +57,39 @@
 				// This will cause problem if given path is not a single folder.
 				// eg. "Folder/Subfolder/".
 				$folderList = scandir($songFolderPath);
-				foreach($folderList as $oneFolderName) {
+				foreach ($folderList as $oneFolderName) {
 					if (GIVEMETHEFUCKINGUTF8($oneFolderName)."/"==urldecode($requestFolderStr)) {
 						$actualSongFolder="{$songFolderPath}/{$oneFolderName}";
 						break;
 					}
 				}
 			}
-			if($actualSongFolder == null) fire(404, "Folder \"{$requestFolderStr}\" not exist!");
+			if ($actualSongFolder == null) fire(404, "Folder \"{$requestFolderStr}\" not exist!");
 			$fileList = scandir($actualSongFolder);
 			$musicList = array();
 			$subFolderList = array();
-			foreach($fileList as $oneFileName) {
-				if($oneFileName == "." || $oneFileName == "..") continue;
+			foreach ($fileList as $oneFileName) {
+				if ($oneFileName == "." || $oneFileName == "..") continue;
 				$utf8FileName = GIVEMETHEFUCKINGUTF8($oneFileName);
 				$curFilePath = "{$actualSongFolder}/{$oneFileName}";
+				$infoJsonFile = pathinfo($curFilePath, PATHINFO_FILENAME);
+				$infoJsonFilePath = "{$actualSongFolder}/{$infoJsonFile}.info.json";
 				if (is_dir($curFilePath)) {
 					array_push($subFolderList, $requestFolderStr.rawurlencode($utf8FileName));
 					continue;
 				}
-				if (in_array(getFileExtension($utf8FileName),$allowedExts)) {
+				if (in_array(getFileExtension($utf8FileName), $allowedExts)) {
 					array_push($musicList, 
 						array(
-							"fileName"=>rawurlencode($utf8FileName),
-							"fileSize"=>filesize($curFilePath),
-							"modifiedTime"=>filemtime($curFilePath)
+							"fileName"       => rawurlencode($utf8FileName),
+							"fileSize"       => filesize($curFilePath),
+							"modifiedTime"   => filemtime($curFilePath),
+							"additionalInfo" => file_exists($infoJsonFilePath)
 						)
 					);
 				}
 			}
-			$result = array("type"=>"fileList", "data"=>compact("musicList","subFolderList"));
+			$result = array("type"=>"fileList", "data"=>compact("musicList", "subFolderList"));
 			fire(200, "OK", $result);
 			break;
 		default:

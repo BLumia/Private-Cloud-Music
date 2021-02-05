@@ -23,10 +23,8 @@ Easy! right?
 
 ## LICENCE
 
-WTFPL - DO WTF YO WANNA DO!
+[MIT](https://spdx.org/licenses/MIT.html)
 
-This program is free software. It comes without any warranty, to the extent permitted by applicable law.
- 
 ----------------------------------------------
 
 # 私有云音乐
@@ -54,6 +52,4 @@ This program is free software. It comes without any warranty, to the extent perm
  
 # 协议？
 
-WTFPL - 这代码你爱他喵拿着干嘛就干嘛。
-
-在适用法律允许的最大范围内，对因使用或不能使用本软件所产生的损害及风险，包括但不限于直接或间接的个人损害、商业赢利的丧失、贸易中断、商业信息的丢失或任何其它经济损失，版权持有者不承担任何责任。
+[MIT](https://spdx.org/licenses/MIT.html)
