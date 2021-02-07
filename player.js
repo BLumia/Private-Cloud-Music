@@ -263,7 +263,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                 isUrlMatched = true;
                 this.path = urlMatch[1];
                 this.audio.src = (this.path + urlMatch[2]);
-                this.audio.play();
+                this.audio.play().catch((reason) => { console.log(reason); });
                 H(this.nowPlaying).innerHTML(decodeURIComponent(urlMatch[2]));
             }
             // Only match folder name.
