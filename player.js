@@ -78,15 +78,17 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
         var f = new Helper();
         return f.entry(selector);
     }
-	function TrickOrTreat(promiseRsp) {
-		if (!promiseRsp.ok) {
-			throw Error(promiseRsp.statusText); // to cancel the Promise chain...
-		}
-		return promiseRsp.json();
-	}
+    function TrickOrTreat(promiseRsp) {
+        if (!promiseRsp.ok) {
+            throw Error(promiseRsp.statusText); // to cancel the Promise chain...
+        }
+        return promiseRsp.json();
+    }
     var Player = {
+        mediaRootUrl: '',
         path: null, // sample: 'Test/'
         data: null,
+        preferredFormats: undefined, // sample: 'mp3,ogg'
         audio: document.getElementsByTagName('audio')[0],
         currentIndex: -1,
         loop: 0,
@@ -133,8 +135,8 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
 
         fetchAdditionalInfo: (infoJsonfileUrl) => {
             fetch(infoJsonfileUrl).then(TrickOrTreat).then((data) => {
-				Player.setInfoJson(data);
-			});
+                Player.setInfoJson(data);
+            });
         },
 
         playAtIndex: function(i) {
@@ -143,7 +145,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             // FIXME: trigger this when audio doesn't finished load will cause play promise error.
             this.audio.pause();
             this.currentIndex = i;
-            this.audio.src = fullPath;
+            this.audio.src = this.mediaRootUrl + fullPath;
             this.audio.load();
             this.audio.play();
             window.history.replaceState("","Useless Title","#/" + fullPath + "/"); // title seems be fucked.
@@ -157,15 +159,44 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             }
         },
 
+        fetchServerInfo: function(callback) {
+            var that = this;
+            fetch("./api.php", {
+                method: 'POST',
+                body: new URLSearchParams({
+                    'do': 'getserverinfo'
+                })
+            }).then(TrickOrTreat).then((data) => {
+                if (data.result.mediaRootUrl && data.result.mediaRootUrl.length > 1) {
+                    that.mediaRootUrl = data.result.mediaRootUrl;
+                    if (!that.mediaRootUrl.endsWith('/')) {
+                        that.mediaRootUrl = that.mediaRootUrl + '/';
+                    }
+                }
+                if (data.result.serverName) {
+                    let el = H("server-name");
+                    if (el) {
+                        el.text(data.result.serverName);
+                    }
+                }
+                
+                typeof callback === 'function' && callback();
+            })
+        },
+
         freshFolderlist: function(callback) {
-			var that = this;
-			fetch("./api.php", {
-				method: 'POST',
-				body: new URLSearchParams({
-					'do': 'getfilelist'
-				})
-			}).then(TrickOrTreat).then((data) => {
-				if (data.status != 200) { 
+            var that = this;
+            requestBody = {
+                'do': 'getfilelist',
+            };
+            if (that.preferredFormats) {
+                requestBody['preferredFormats'] = that.preferredFormats;
+            }
+            fetch("./api.php", {
+                method: 'POST',
+                body: new URLSearchParams(requestBody)
+            }).then(TrickOrTreat).then((data) => {
+                if (data.status != 200) { 
                     console.error("Fetch error. Reason: " + data.message + " Url: ./api.php");
                     return;
                 }
@@ -179,8 +210,8 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                         ).el
                     );
                 });
-				
-				var nodeList = document.querySelectorAll('#folderlist a');
+                
+                var nodeList = document.querySelectorAll('#folderlist a');
                 for(var i = 0; i < nodeList.length; i++) {
                     var el = nodeList[i];
                     el.onclick = function() {
@@ -188,33 +219,34 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                         that.fetchData();
                     };
                 }
-				
-				typeof callback === 'function' && callback();
-			});
+                
+                typeof callback === 'function' && callback();
+            });
         },
 
         fetchData: function() {
             var that = this;
-			
-			fetch("./api.php", {
-				method: 'POST',
-				body: new URLSearchParams({
-					'do': 'getfilelist',
-					'folder': that.path
-				})
-			}).then(TrickOrTreat).then((data) => {
-				that.data = data.result.data.musicList;
-				that.freshPlaylist();
+            
+            fetch("./api.php", {
+                method: 'POST',
+                body: new URLSearchParams({
+                    'do': 'getfilelist',
+                    'folder': that.path
+                })
+            }).then(TrickOrTreat).then((data) => {
+                that.data = data.result.data.musicList;
+                that.freshPlaylist();
                 that.freshSubFolderList(data.result.data.subFolderList);
-			});
+            });
         },
- 
+
         freshPlaylist : function() {
             var that = this;
             var data = this.data;
             var songTitle = '';
             this.playlist.innerHTML = '';
             data.forEach(function(item, i) {
+                // TODO: displayName
                 songTitle = decodeURIComponent(item.fileName);
                 H(that.playlist).append(
                     H("<a>").attr('index', i).append(
@@ -300,9 +332,15 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                 H("btn-order").innerHTML("Order: ×");
             }
         },
- 
+
         init : function() {
             var that = this;
+            this.fetchServerInfo(function() {
+                that.freshFolderlist(function() {
+                    that.urlMatch();
+                    that.fetchData();
+                });
+            });
             this.freshFolderlist(function() {
                 that.urlMatch();
                 that.fetchData();
@@ -312,7 +350,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             this.applyLoop();
             this.applyOrder();
         },
- 
+
         ready : function() {
             var that = this;
             
@@ -324,7 +362,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                 var r = 0;
                 for (var i=0; i<Player.audio.buffered.length; ++i)
                     r = r<Player.audio.buffered.end(i) ? Player.audio.buffered.end(i) : r;
-				H("progress-bar").attr("buffer", r / Player.audio.duration*100);
+                H("progress-bar").attr("buffer", r / Player.audio.duration*100);
             };
             
             this.audio.onpause = function() {
@@ -386,7 +424,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
                 that.applyLoop();
                 setCookie("pcm-loop", that.loop, 157680000);
             });
- 
+
             H("btn-order").click(function() {
                 that.order = 1 - that.order;
                 that.applyOrder();
@@ -399,7 +437,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             }
         }
     };
- 
+
     Player.init();
     Player.ready();
 }());

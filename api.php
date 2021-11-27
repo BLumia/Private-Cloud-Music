@@ -1,7 +1,17 @@
 <?php
 	$curPath = dirname(__FILE__);
 	$songFolderPath = $curPath; // Change this if you'd like to put your song folders into a sub folder or somewhere else.
-	
+	$serverInfo = array(
+		"serverName" => "Private Cloud Music",
+		"serverShortName" => "PCM",
+		// This tell the client the preffered folder name if it supports local storage.
+		// Optional, user can still able to change it.
+		"baseFolderNameHint" => "pcm",
+		// This tell the server which format is preferred if there are multiple formats available for a same music.
+		// Optional, server could still simply ignore this hint.
+		"preferredFormatsHint" => "mp3,ogg",
+	);
+
 	$allowedExts = array("mp3", "wav");
 	
 	function GIVEMETHEFUCKINGUTF8($text) {
@@ -45,6 +55,16 @@
 	$command = strtolower($_POST['do']);
 	
 	switch($command) {
+		case "getserverinfo":
+			$urlPath = pathinfo($_SERVER['REQUEST_URI'], PATHINFO_DIRNAME);
+			$result = array(
+				"apiVersion" => 1,
+				// This is required for concatenate the full media url for playback since we only return a file name in getfilelist API.
+				// for this implementaion, the media root url is the same base url as the api url.
+				"mediaRootUrl" => ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https://' : 'http://').$_SERVER['HTTP_HOST'].$urlPath,
+			);
+			fire(200, "OK", array_merge($serverInfo, $result));
+			break;
 		case "getfilelist":
 			$requestFolderStr = "";
 			if(isset($_POST['folder'])) $requestFolderStr = $_POST['folder'];
