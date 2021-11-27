@@ -14,6 +14,29 @@
 
 ## API Spec
 
+### Get server information for later use.
+
+* POST:
+	+ 'do' = "getserverinfo"
+
+* RETURN:
+	json with the following struct.
+
+``` json
+{
+	"status": 200,
+	"message": "OK",
+	"result": {
+		"serverName": "Server Name",
+		"serverShortName": "SN",
+		"baseFolderNameHint": "sn",
+		"preferredFormatsHint": "mp3,ogg",
+		"apiVersion": 1,
+		"mediaRootUrl": "http://localhost/pcm/"
+	}
+}
+```
+
 ### Get file list of given folder name.
 
 * POST:
@@ -22,7 +45,7 @@
 
 * RETURN:
 	json with the following struct. (if folder exist)
-	
+
 ``` json
 {
 	"status": 200,
@@ -51,6 +74,12 @@
 	}
 }
 ```
+
+### Playback
+
+Media file located at URL: `mediaRootUrl` + `path` + `fileName`. `mediaRootUrl` can be obtained from the `getserverinfo` API, `path` is the folder path of the current media file.
+
+Once you get the URL, just feed the url to the player.
 
 ### If anything wrong.
 
