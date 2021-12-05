@@ -21,6 +21,9 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
     if (maxAge > 0) cookieStr += ";max-age=" + maxAge;
     document.cookie = cookieStr;
 }
+function displayName(item) {
+    return item.displayName ? item.displayName : decodeURIComponent(item.fileName);
+}
 
 (function() {
     var Helper = function() {
@@ -96,6 +99,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
         playlist: H("playlist").el,
         folderlist: H("folderlist").el,
         nowPlaying: H("nowPlaying").el,
+        apiUrl: "./api.php",
         _currentSongInfoJson: undefined,
         _chapterNeedUpdate: true,
 
@@ -140,16 +144,16 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
         },
 
         playAtIndex: function(i) {
-            let fileName = this.data[i].fileName;
-            let fullPath = (this.path + fileName);
+            let fullPath = this.path + this.data[i].fileName;
+            let srcUrl = this.data[i].url ? this.data[i].url : (this.mediaRootUrl + fullPath);
             // FIXME: trigger this when audio doesn't finished load will cause play promise error.
             this.audio.pause();
             this.currentIndex = i;
-            this.audio.src = this.mediaRootUrl + fullPath;
+            this.audio.src = srcUrl;
             this.audio.load();
             this.audio.play();
             window.history.replaceState("","Useless Title","#/" + fullPath + "/"); // title seems be fucked.
-            H(this.nowPlaying).innerHTML(decodeURIComponent(fileName));
+            H(this.nowPlaying).innerHTML(displayName(this.data[i]));
 
             if (this.data[i].additionalInfo) {
                 let infoJsonFile = (fullPath.substring(0, fullPath.lastIndexOf('.')) || fullPath) + ".info.json";
@@ -161,7 +165,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
 
         fetchServerInfo: function(callback) {
             var that = this;
-            fetch("./api.php", {
+            fetch(this.apiUrl, {
                 method: 'POST',
                 body: new URLSearchParams({
                     'do': 'getserverinfo'
@@ -192,7 +196,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             if (that.preferredFormats) {
                 requestBody['preferredFormats'] = that.preferredFormats;
             }
-            fetch("./api.php", {
+            fetch(this.apiUrl, {
                 method: 'POST',
                 body: new URLSearchParams(requestBody)
             }).then(TrickOrTreat).then((data) => {
@@ -227,7 +231,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
         fetchData: function() {
             var that = this;
             
-            fetch("./api.php", {
+            fetch(this.apiUrl, {
                 method: 'POST',
                 body: new URLSearchParams({
                     'do': 'getfilelist',
@@ -246,8 +250,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             var songTitle = '';
             this.playlist.innerHTML = '';
             data.forEach(function(item, i) {
-                // TODO: displayName
-                songTitle = decodeURIComponent(item.fileName);
+                songTitle = displayName(item);
                 H(that.playlist).append(
                     H("<a>").attr('index', i).append(
                         H("<li>").text(songTitle).el
@@ -384,7 +387,7 @@ function setCookie(cookieName, cookieValue, maxAge = 0) {
             for(var i = 0; i < nodeList.length; i++) {
                 var el = nodeList[i];
                 el.onclick = function() {
-                    if(that.data[that.currentIndex]) H(that.nowPlaying).innerHTML(decodeURIComponent(that.data[that.currentIndex].fileName));
+                    if(that.data[that.currentIndex]) H(that.nowPlaying).innerHTML(displayName(that.data[that.currentIndex]));
                 };
             }
 
