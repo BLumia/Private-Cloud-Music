@@ -344,10 +344,6 @@ function displayName(item) {
                     that.fetchData();
                 });
             });
-            this.freshFolderlist(function() {
-                that.urlMatch();
-                that.fetchData();
-            });
             this.loop = getCookie("pcm-loop") == "1" ? 1 : 0;
             this.order = getCookie("pcm-order") == "1" ? 1 : 0;
             this.applyLoop();
