@@ -182,6 +182,7 @@ function displayName(item) {
                     if (el) {
                         el.text(data.result.serverName);
                     }
+                    document.title = data.result.serverName;
                 }
                 
                 typeof callback === 'function' && callback();
